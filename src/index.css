@@ -1,0 +1,180 @@
+/* index.css - CLEANED VERSION */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Your Modern & Calm color palette - LIGHT MODE */
+  --background: 210 25% 98%; /* Off-White #F5F7FA */
+  --foreground: 210 10% 15%; /* Dark text */
+
+  --card: 0 0% 100%; /* White */
+  --card-foreground: 210 10% 15%; /* Dark text */
+
+  --popover: 0 0% 100%; /* White */
+  --popover-foreground: 210 10% 15%; /* Dark text */
+
+  --primary: 205 35% 55%; /* Steel Teal #5D8AA8 */
+  --primary-foreground: 0 0% 100%; /* White */
+
+  --secondary: 210 15% 75%; /* Warm Gray #95A5A6 */
+  --secondary-foreground: 210 10% 15%; /* Dark text */
+
+  --muted: 210 15% 92%; /* Light gray */
+  --muted-foreground: 210 10% 40%; /* Medium gray text */
+
+  --accent: 210 15% 92%; /* Light gray */
+  --accent-foreground: 210 10% 15%; /* Dark text */
+
+  --destructive: 0 85% 65%; /* Coral #FF6B6B */
+  --destructive-foreground: 0 0% 100%; /* White */
+
+  --border: 210 20% 85%; /* Light border */
+  --input: 210 20% 95%; /* Very light input */
+  --ring: 205 35% 55%; /* Steel Teal #5D8AA8 */
+
+  --radius: 0.5rem;
+}
+
+.dark {
+  /* DARK MODE */
+  --background: 210 10% 8%; /* Dark background */
+  --foreground: 210 15% 95%; /* Light text */
+
+  --card: 210 10% 12%; /* Dark card */
+  --card-foreground: 210 15% 95%; /* Light text */
+
+  --popover: 210 10% 12%; /* Dark popover */
+  --popover-foreground: 210 15% 95%; /* Light text */
+
+  --primary: 205 35% 65%; /* Lighter Steel Teal */
+  --primary-foreground: 210 10% 10%; /* Dark text */
+
+  --secondary: 210 10% 20%; /* Dark gray */
+  --secondary-foreground: 210 15% 95%; /* Light text */
+
+  --muted: 210 10% 15%; /* Dark muted */
+  --muted-foreground: 210 15% 75%; /* Medium light text */
+
+  --accent: 210 10% 20%; /* Dark accent */
+  --accent-foreground: 210 15% 95%; /* Light text */
+
+  --destructive: 0 85% 60%; /* Coral */
+  --destructive-foreground: 0 0% 100%; /* White */
+
+  --border: 210 10% 20%; /* Dark border */
+  --input: 210 10% 15%; /* Dark input */
+  --ring: 205 35% 65%; /* Lighter Steel Teal */
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Smooth transitions for theme changes */
+* {
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Better scrollbar for dark mode */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: hsl(210 15% 92%);
+}
+
+.dark ::-webkit-scrollbar-track {
+  background-color: hsl(210 10% 15%);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: hsl(210 20% 80%);
+  border-radius: 9999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background-color: hsl(210 10% 40%);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(210 20% 70%);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(210 10% 50%);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Glass effect for cards */
+.glass-card {
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .glass-card {
+  background-color: rgba(30, 41, 59, 0.8);
+  border-color: rgba(71, 85, 105, 0.5);
+}
+
+/* Subtle hover effects */
+.hover-lift {
+  transition: transform 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-1px);
+}
+
+.hover-glow {
+  transition: box-shadow 0.2s ease;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.dark .hover-glow:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3),
+    0 4px 6px -2px rgba(0, 0, 0, 0.2);
+}
