@@ -2,7 +2,11 @@
 import { useAuth } from "../contexts/AuthContext";
 import { useCallback, useMemo } from "react";
 import { ROLES } from "../utils/roles";
-import { PERMISSIONS } from "../utils/permissions";
+import {
+  Permission,
+  PERMISSIONS,
+  ROLE_PERMISSIONS,
+} from "../utils/permissions";
 
 export const usePermissions = () => {
   const { user } = useAuth();
@@ -37,38 +41,8 @@ export const usePermissions = () => {
     (permission: string): boolean => {
       if (!memoizedUser.role) return false;
 
-      const rolePermissions: Record<string, string[]> = {
-        admin: [
-          PERMISSIONS.CREATE_COMPANY,
-          PERMISSIONS.DELETE_COMPANY,
-          PERMISSIONS.INVITE_MANAGERS,
-          PERMISSIONS.REMOVE_MANAGERS,
-          PERMISSIONS.SET_COMPANY_SETTINGS,
-          PERMISSIONS.SET_BUDGETS,
-          PERMISSIONS.VIEW_BUDGETS,
-          PERMISSIONS.VIEW_ALL_EXPENSES,
-          PERMISSIONS.SUBMIT_EXPENSES,
-          PERMISSIONS.EDIT_EXPENSES,
-          PERMISSIONS.DELETE_EXPENSES,
-          PERMISSIONS.GENERATE_REPORTS,
-          PERMISSIONS.EXPORT_DATA,
-          PERMISSIONS.VIEW_ANALYTICS,
-        ],
-        manager: [
-          PERMISSIONS.SET_BUDGETS,
-          PERMISSIONS.VIEW_BUDGETS,
-          PERMISSIONS.VIEW_ALL_EXPENSES,
-          PERMISSIONS.SUBMIT_EXPENSES,
-          PERMISSIONS.EDIT_EXPENSES,
-          PERMISSIONS.DELETE_EXPENSES,
-          PERMISSIONS.GENERATE_REPORTS,
-          PERMISSIONS.EXPORT_DATA,
-          PERMISSIONS.VIEW_ANALYTICS,
-        ],
-      };
-
-      const userPermissions = rolePermissions[memoizedUser.role] || [];
-      return userPermissions.includes(permission);
+      const userPermissions = ROLE_PERMISSIONS[memoizedUser.role] || [];
+      return userPermissions.includes(permission as Permission);
     },
     [memoizedUser.role],
   );

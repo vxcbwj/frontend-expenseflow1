@@ -112,7 +112,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     console.log("✅ Logout successful");
 
     // Dispatch event for other components
-    window.dispatchEvent(new Event("authChange"));
+    // window.dispatchEvent(new Event("authChange"));
   }, []);
 
   // Memoized refresh profile function

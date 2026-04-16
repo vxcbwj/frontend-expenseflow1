@@ -72,7 +72,7 @@ export const normalizeBackendUser = (backendUser: any): UserProfile => {
 
     preferences: backendUser.preferences || {
       theme: "auto",
-      currency: "USD",
+      currency: "DZD",
       language: "en",
     },
     createdAt: backendUser.createdAt,
@@ -96,7 +96,7 @@ export const userAPI = {
 
   // Update user profile
   updateProfile: async (
-    profileData: UpdateProfileData
+    profileData: UpdateProfileData,
   ): Promise<{
     success: boolean;
     message: string;
@@ -111,7 +111,7 @@ export const userAPI = {
 
   // Change password
   changePassword: async (
-    passwordData: ChangePasswordData
+    passwordData: ChangePasswordData,
   ): Promise<{
     success: boolean;
     message: string;

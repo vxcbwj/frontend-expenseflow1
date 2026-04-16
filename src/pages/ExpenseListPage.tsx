@@ -2,8 +2,10 @@
 import React, { useState, useEffect } from "react";
 import { useCompany } from "../contexts/CompanyContext";
 import { expenseAPI, type Expense } from "../services/expenseAPI";
+import { formatCurrency } from "../utils/formatCurrency";
 import ExpenseList from "../components/expenses/ExpenseList";
 import ExpenseForm from "../components/expenses/ExpenseForm";
+import { EmptyState } from "../components/ui/EmptyState";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { usePermissions } from "../hooks/userPermissions";
@@ -141,11 +143,9 @@ const ExpenseListPage: React.FC = () => {
             <CardContent className="pt-6">
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  {new Intl.NumberFormat("en-US", {
-                    style: "currency",
-                    currency: "USD",
-                  }).format(
+                  {formatCurrency(
                     expenses.reduce((sum, expense) => sum + expense.amount, 0),
+                    company?.currency
                   )}
                 </div>
                 <div className="text-sm text-green-700 dark:text-green-300">
@@ -159,16 +159,14 @@ const ExpenseListPage: React.FC = () => {
             <CardContent className="pt-6">
               <div className="text-center">
                 <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                  {new Intl.NumberFormat("en-US", {
-                    style: "currency",
-                    currency: "USD",
-                  }).format(
+                  {formatCurrency(
                     expenses.length > 0
                       ? expenses.reduce(
                           (sum, expense) => sum + expense.amount,
                           0,
                         ) / expenses.length
                       : 0,
+                    company?.currency
                   )}
                 </div>
                 <div className="text-sm text-purple-700 dark:text-purple-300">
@@ -208,27 +206,12 @@ const ExpenseListPage: React.FC = () => {
 
       {/* Empty State */}
       {!loading && expenses.length === 0 && !showForm && (
-        <Card>
-          <CardContent className="pt-6 text-center py-12">
-            <div className="text-4xl mb-4">📝</div>
-            <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
-              No Expenses Yet
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Start tracking your business expenses to get insights into your
-              spending
-            </p>
-            {/* ✅ FIXED: Removed argument from canManageExpenses() */}
-            {canManageExpenses() && (
-              <Button
-                onClick={() => setShowForm(true)}
-                className="bg-blue-800 hover:bg-blue-700"
-              >
-                Add Your First Expense
-              </Button>
-            )}
-          </CardContent>
-        </Card>
+        <EmptyState
+            title="No Expenses Yet"
+            description="Start tracking your business expenses to get insights into your spending."
+            primaryAction={canManageExpenses() ? { label: "Add Your First Expense", onClick: () => setShowForm(true) } : undefined}
+            icon={<span className="text-4xl block w-full h-full pb-2">📝</span>}
+        />
       )}
     </div>
   );

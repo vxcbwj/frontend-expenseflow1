@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { usePermissions } from "../../hooks/userPermissions";
+import api from "../../services/api";
 
 interface Invitation {
   _id: string;
@@ -21,7 +22,9 @@ interface InvitationListProps {
   companyId: string;
 }
 
-const InvitationList: React.FC<InvitationListProps> = ({ companyId }) => {
+const InvitationList: React.FC<InvitationListProps> = ({
+  companyId: _companyId,
+}) => {
   const { isAdmin } = usePermissions(); // Added permission check
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,17 +34,13 @@ const InvitationList: React.FC<InvitationListProps> = ({ companyId }) => {
     if (isAdmin()) {
       fetchInvitations();
     }
-  }, [companyId, isAdmin]);
+  }, [isAdmin]);
 
   const fetchInvitations = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/invitations/company/${companyId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      const data = await response.json();
+      const response = await api.get("/invitations");
+      const data = response.data;
       if (data.success) {
         setInvitations(data.invitations);
       } else {

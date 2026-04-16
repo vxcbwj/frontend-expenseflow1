@@ -43,15 +43,28 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
 
   // Available categories with icons
   const categories = [
-    { value: "electricity", label: "⚡Electricity", icon: "⚡" },
-    { value: "water", label: "💧 Water", icon: "💧" },
-    { value: "internet", label: "🌐 Internet", icon: "🌐" },
-    { value: "rent", label: "🏠 Rent", icon: "🏠" },
-    { value: "supplies", label: "📦 Supplies", icon: "📦" },
-    { value: "salaries", label: "💰 Salaries", icon: "💰" },
-    { value: "marketing", label: "📢 Marketing", icon: "📢" },
-    { value: "transportation", label: "🚗 Transportation", icon: "🚗" },
-    { value: "other", label: " Other", icon: "📋" },
+    { value: "Office Supplies", label: "📎 Office Supplies", icon: "📎" },
+    { value: "Software", label: "💻 Software", icon: "💻" },
+    { value: "Hardware", label: "🖥️ Hardware", icon: "🖥️" },
+    { value: "Travel", label: "✈️ Travel", icon: "✈️" },
+    {
+      value: "Meals & Entertainment",
+      label: "🍽️ Meals & Entertainment",
+      icon: "🍽️",
+    },
+    { value: "Marketing", label: "📢 Marketing", icon: "📢" },
+    { value: "Utilities", label: "⚡ Utilities", icon: "⚡" },
+    { value: "Rent", label: "🏠 Rent", icon: "🏠" },
+    { value: "Salaries", label: "💰 Salaries", icon: "💰" },
+    { value: "Consulting", label: "👥 Consulting", icon: "👥" },
+    { value: "Insurance", label: "🛡️ Insurance", icon: "🛡️" },
+    { value: "Training", label: "📚 Training", icon: "📚" },
+    { value: "Maintenance", label: "🔧 Maintenance", icon: "🔧" },
+    { value: "Shipping", label: "📦 Shipping", icon: "📦" },
+    { value: "Advertising", label: "📺 Advertising", icon: "📺" },
+    { value: "Legal", label: "⚖️ Legal", icon: "⚖️" },
+    { value: "Taxes", label: "💼 Taxes", icon: "💼" },
+    { value: "Other", label: "📋 Other", icon: "📋" },
   ];
 
   // Budget periods with icons
@@ -63,7 +76,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
 
   // Form state
   const [formData, setFormData] = useState<CreateBudgetData>({
-    category: "other",
+    category: "Other",
     amount: 0,
     period: "monthly",
     companyId: company?.id || "",
@@ -161,9 +174,9 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
 
   // Format currency
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("fr-DZ", {
       style: "currency",
-      currency: "USD",
+      currency: company?.currency || "DZD",
       minimumFractionDigits: 2,
     }).format(amount);
   };

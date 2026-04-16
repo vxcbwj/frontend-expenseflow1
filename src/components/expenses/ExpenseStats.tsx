@@ -1,11 +1,13 @@
 import React from "react";
 import { type Expense } from "../../services/expenseAPI";
+import { useCompany } from "../../contexts/CompanyContext";
 
 interface ExpenseStatsProps {
   expenses: Expense[];
 }
 
 const ExpenseStats: React.FC<ExpenseStatsProps> = ({ expenses }) => {
+  const { company } = useCompany();
   // Calculate total spent
   const totalSpent = expenses.reduce((sum, expense) => sum + expense.amount, 0);
 
@@ -36,9 +38,9 @@ const ExpenseStats: React.FC<ExpenseStatsProps> = ({ expenses }) => {
 
   // Format currency
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("fr-DZ", {
       style: "currency",
-      currency: "USD",
+      currency: company?.currency || "DZD",
     }).format(amount);
   };
 

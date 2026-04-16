@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useCompany } from "../../contexts/CompanyContext";
 import { type Expense } from "../../services/expenseAPI";
 import {
   TrendingUp,
@@ -15,7 +16,6 @@ import {
   Clock,
   Layers,
   Zap,
-  Droplets,
   Wifi,
   Home,
   Package,
@@ -34,6 +34,7 @@ export const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
   expenses,
   loading = false,
 }) => {
+  const { company } = useCompany();
   // Calculate statistics
   const totalSpent = expenses.reduce((sum, expense) => sum + expense.amount, 0);
   const navigate = useNavigate();
@@ -48,15 +49,18 @@ export const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
     })
     .reduce((sum, expense) => sum + expense.amount, 0);
 
-  const categorySpending = expenses.reduce((acc, expense) => {
-    acc[expense.category] = (acc[expense.category] || 0) + expense.amount;
-    return acc;
-  }, {} as Record<string, number>);
+  const categorySpending = expenses.reduce(
+    (acc, expense) => {
+      acc[expense.category] = (acc[expense.category] || 0) + expense.amount;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   const topCategory = Object.entries(categorySpending).reduce(
     (max, [category, amount]) =>
       amount > max.amount ? { category, amount } : max,
-    { category: "", amount: 0 }
+    { category: "", amount: 0 },
   );
 
   // Calculate month-over-month change if available
@@ -78,9 +82,9 @@ export const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
       : 0;
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("fr-DZ", {
       style: "currency",
-      currency: "USD",
+      currency: company?.currency || "DZD",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
@@ -97,63 +101,56 @@ export const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
         progressColor: string;
       };
     } = {
-      electricity: {
+      Utilities: {
         icon: <Zap className="h-4 w-4" />,
         color: "text-blue-600 dark:text-blue-400",
         bgColor: "bg-blue-50 dark:bg-blue-900/30",
         borderColor: "border-blue-200 dark:border-blue-800",
         progressColor: "bg-blue-500",
       },
-      water: {
-        icon: <Droplets className="h-4 w-4" />,
-        color: "text-cyan-600 dark:text-cyan-400",
-        bgColor: "bg-cyan-50 dark:bg-cyan-900/30",
-        borderColor: "border-cyan-200 dark:border-cyan-800",
-        progressColor: "bg-cyan-500",
-      },
-      internet: {
+      Software: {
         icon: <Wifi className="h-4 w-4" />,
         color: "text-purple-600 dark:text-purple-400",
         bgColor: "bg-purple-50 dark:bg-purple-900/30",
         borderColor: "border-purple-200 dark:border-purple-800",
         progressColor: "bg-purple-500",
       },
-      rent: {
+      Rent: {
         icon: <Home className="h-4 w-4" />,
         color: "text-red-600 dark:text-red-400",
         bgColor: "bg-red-50 dark:bg-red-900/30",
         borderColor: "border-red-200 dark:border-red-800",
         progressColor: "bg-red-500",
       },
-      supplies: {
+      "Office Supplies": {
         icon: <Package className="h-4 w-4" />,
         color: "text-green-600 dark:text-green-400",
         bgColor: "bg-green-50 dark:bg-green-900/30",
         borderColor: "border-green-200 dark:border-green-800",
         progressColor: "bg-green-500",
       },
-      salaries: {
+      Salaries: {
         icon: <Users className="h-4 w-4" />,
         color: "text-orange-600 dark:text-orange-400",
         bgColor: "bg-orange-50 dark:bg-orange-900/30",
         borderColor: "border-orange-200 dark:border-orange-800",
         progressColor: "bg-orange-500",
       },
-      marketing: {
+      Marketing: {
         icon: <Megaphone className="h-4 w-4" />,
         color: "text-pink-600 dark:text-pink-400",
         bgColor: "bg-pink-50 dark:bg-pink-900/30",
         borderColor: "border-pink-200 dark:border-pink-800",
         progressColor: "bg-pink-500",
       },
-      transportation: {
+      Travel: {
         icon: <Truck className="h-4 w-4" />,
         color: "text-indigo-600 dark:text-indigo-400",
         bgColor: "bg-indigo-50 dark:bg-indigo-900/30",
         borderColor: "border-indigo-200 dark:border-indigo-800",
         progressColor: "bg-indigo-500",
       },
-      other: {
+      Other: {
         icon: <MoreHorizontal className="h-4 w-4" />,
         color: "text-gray-600 dark:text-gray-400",
         bgColor: "bg-gray-50 dark:bg-gray-900/30",
@@ -162,7 +159,7 @@ export const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
       },
     };
 
-    return configs[category] || configs.other;
+    return configs[category] || configs.Other;
   };
 
   // Custom Progress component wrapper to handle custom colors
@@ -183,20 +180,20 @@ export const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
               color === "bg-blue-500"
                 ? "#3b82f6"
                 : color === "bg-cyan-500"
-                ? "#06b6d4"
-                : color === "bg-purple-500"
-                ? "#8b5cf6"
-                : color === "bg-red-500"
-                ? "#ef4444"
-                : color === "bg-green-500"
-                ? "#10b981"
-                : color === "bg-orange-500"
-                ? "#f97316"
-                : color === "bg-pink-500"
-                ? "#ec4899"
-                : color === "bg-indigo-500"
-                ? "#6366f1"
-                : "#6b7280", // gray-500
+                  ? "#06b6d4"
+                  : color === "bg-purple-500"
+                    ? "#8b5cf6"
+                    : color === "bg-red-500"
+                      ? "#ef4444"
+                      : color === "bg-green-500"
+                        ? "#10b981"
+                        : color === "bg-orange-500"
+                          ? "#f97316"
+                          : color === "bg-pink-500"
+                            ? "#ec4899"
+                            : color === "bg-indigo-500"
+                              ? "#6366f1"
+                              : "#6b7280", // gray-500
           }}
         />
       </div>
@@ -205,7 +202,7 @@ export const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
 
   // Sort categories by amount for consistent rendering
   const sortedCategories = Object.entries(categorySpending).sort(
-    ([, a], [, b]) => b - a
+    ([, a], [, b]) => b - a,
   );
 
   // Get recent expenses (max 5)
@@ -217,14 +214,50 @@ export const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
       <div className="space-y-6 animate-pulse" key="enhanced-dashboard-loading">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(4)].map((_, i) => (
-            <div key={`skeleton-card-${i}`} className="space-y-3">
-              <div className="h-40 bg-gray-200 dark:bg-gray-800 rounded-xl"></div>
-            </div>
+            <Card key={`skeleton-card-${i}`}>
+              <CardHeader className="pb-2">
+                <div className="flex justify-between">
+                  <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="h-8 w-32 bg-gray-200 dark:bg-gray-700 rounded mt-2"></div>
+                <div className="h-3 w-40 bg-gray-200 dark:bg-gray-700 rounded mt-4"></div>
+              </CardContent>
+            </Card>
           ))}
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="h-64 bg-gray-200 dark:bg-gray-800 rounded-xl"></div>
-          <div className="h-64 bg-gray-200 dark:bg-gray-800 rounded-xl"></div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <div className="h-6 w-48 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={`param-skel-${i}`} className="space-y-2">
+                  <div className="flex justify-between">
+                    <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div className="h-4 w-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  </div>
+                  <div className="h-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <div className="h-6 w-36 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {[...Array(5)].map((_, i) => (
+                <div key={`recent-skel-${i}`} className="flex justify-between border-b pb-2">
+                   <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                   <div className="h-4 w-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
         </div>
       </div>
     );

@@ -10,6 +10,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { usePermissions } from "../hooks/userPermissions";
+import { useCompany } from "../contexts/CompanyContext";
 import {
   auditLogAPI,
   AuditLog,
@@ -22,6 +23,7 @@ import AuditLogDetailsModal from "../components/audit/AuditLogDetailsModal";
 
 const AuditLogsPage: React.FC = () => {
   const { isAdmin, getCompanyId } = usePermissions();
+  const { company } = useCompany();
 
   // State
   const [logs, setLogs] = useState<AuditLog[]>([]);
@@ -39,22 +41,6 @@ const AuditLogsPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [stats, setStats] = useState<AuditLogStats | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
-
-  // Permission check
-  if (!isAdmin()) {
-    return <Navigate to="/dashboard" />;
-  }
-
-  if (!getCompanyId()) {
-    return (
-      <div className="text-center py-12">
-        <Activity className="w-12 h-12 text-muted-foreground opacity-50 mx-auto mb-4" />
-        <p className="text-muted-foreground">
-          You need to be assigned to a company to view audit logs.
-        </p>
-      </div>
-    );
-  }
 
   // Fetch logs
   const fetchLogs = useCallback(async (newFilters: AuditLogFiltersType) => {
@@ -129,10 +115,26 @@ const AuditLogsPage: React.FC = () => {
     return () => clearTimeout(timer);
   }, [filters, fetchLogs]);
 
+  // Permission check
+  if (!isAdmin()) {
+    return <Navigate to="/dashboard" />;
+  }
+
+  if (!getCompanyId()) {
+    return (
+      <div className="text-center py-12">
+        <Activity className="w-12 h-12 text-muted-foreground opacity-50 mx-auto mb-4" />
+        <p className="text-muted-foreground">
+          You need to be assigned to a company to view audit logs.
+        </p>
+      </div>
+    );
+  }
+
   // Handle filter change
-  const handleFilterChange = (newFilters: AuditLogFiltersType) => {
+  const handleFilterChange = useCallback((newFilters: AuditLogFiltersType) => {
     setFilters(newFilters);
-  };
+  }, []);
 
   // Handle refresh
   const handleRefresh = async () => {
@@ -231,6 +233,7 @@ const AuditLogsPage: React.FC = () => {
           </h1>
           <p className="text-muted-foreground mt-1">
             System activity and security logs
+            {company ? ` for ${company.name}` : ""}
           </p>
         </div>
         <div className="flex gap-2">

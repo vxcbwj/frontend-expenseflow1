@@ -45,7 +45,7 @@ export const companyUsersAPI = {
   getCompanyUsers: async (companyId: string): Promise<CompanyUsersResponse> => {
     try {
       console.log(`📊 Fetching users for company: ${companyId}`);
-      const response = await api.get(`/company-users/${companyId}`);
+      const response = await api.get(`/companies/${companyId}/users`);
       const data = response.data;
 
       if (data.success) {
@@ -78,7 +78,7 @@ export const companyUsersAPI = {
   // Add user to company
   inviteUser: async (
     companyId: string,
-    userData: InviteUserData
+    userData: InviteUserData,
   ): Promise<{
     success: boolean;
     message: string;
@@ -88,10 +88,11 @@ export const companyUsersAPI = {
     try {
       console.log(`📧 Inviting user to company ${companyId}:`, userData.email);
 
-      const response = await api.post(
-        `/company-users/${companyId}/invite`,
-        userData
-      );
+      const response = await api.post(`/invitations/send`, {
+        email: userData.email,
+        role: userData.role,
+        department: userData.department,
+      });
       const data = response.data;
 
       if (data.success) {
@@ -129,10 +130,11 @@ export const companyUsersAPI = {
   },
 
   // Update user role in company
+  // TODO: backend endpoint not implemented — this call will 404
   updateUserRole: async (
     companyId: string,
     userId: string,
-    updateData: UpdateUserData
+    updateData: UpdateUserData,
   ): Promise<{
     success: boolean;
     message: string;
@@ -142,12 +144,12 @@ export const companyUsersAPI = {
     try {
       console.log(
         `✏️ Updating user ${userId} in company ${companyId}:`,
-        updateData
+        updateData,
       );
 
       const response = await api.put(
         `/company-users/${companyId}/users/${userId}`,
-        updateData
+        updateData,
       );
       const data = response.data;
 
@@ -185,7 +187,7 @@ export const companyUsersAPI = {
   // Remove user from company
   removeUser: async (
     companyId: string,
-    userId: string
+    userId: string,
   ): Promise<{
     success: boolean;
     message: string;
@@ -194,9 +196,7 @@ export const companyUsersAPI = {
     try {
       console.log(`🗑️ Removing user ${userId} from company ${companyId}`);
 
-      const response = await api.delete(
-        `/company-users/${companyId}/users/${userId}`
-      );
+      const response = await api.delete(`/invitations/managers/${userId}`);
       const data = response.data;
 
       if (data.success) {
@@ -232,11 +232,11 @@ export const companyUsersAPI = {
   // NEW: Search users in company
   searchUsers: async (
     companyId: string,
-    searchTerm: string
+    searchTerm: string,
   ): Promise<CompanyUsersResponse> => {
     try {
       console.log(
-        `🔍 Searching users in company ${companyId}: "${searchTerm}"`
+        `🔍 Searching users in company ${companyId}: "${searchTerm}"`,
       );
 
       const response = await api.get(`/company-users/${companyId}/search`, {
@@ -272,7 +272,7 @@ export const companyUsersAPI = {
   // NEW: Get user details in company
   getUserDetails: async (
     companyId: string,
-    userId: string
+    userId: string,
   ): Promise<{
     success: boolean;
     message: string;
@@ -281,11 +281,11 @@ export const companyUsersAPI = {
   }> => {
     try {
       console.log(
-        `👤 Getting details for user ${userId} in company ${companyId}`
+        `👤 Getting details for user ${userId} in company ${companyId}`,
       );
 
       const response = await api.get(
-        `/company-users/${companyId}/users/${userId}`
+        `/company-users/${companyId}/users/${userId}`,
       );
       const data = response.data;
 

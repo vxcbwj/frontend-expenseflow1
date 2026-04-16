@@ -113,7 +113,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ isExpanded, onToggle }) => {
     const filtered = searchItems.filter(
       (item) =>
         item.label.toLowerCase().includes(query.toLowerCase()) ||
-        item.description?.toLowerCase().includes(query.toLowerCase())
+        item.description?.toLowerCase().includes(query.toLowerCase()),
     );
     setResults(filtered.slice(0, 8)); // Limit to 8 results
   }, [query]);
@@ -195,7 +195,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ isExpanded, onToggle }) => {
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search for pages, actions..."
+                placeholder="Search pages, actions, or settings..."
                 className="flex-1 bg-transparent border-none outline-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-lg"
                 autoFocus
               />

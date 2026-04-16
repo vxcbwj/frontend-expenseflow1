@@ -105,50 +105,49 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
   }
 
   return (
-    <>
-      {/* Expanded Sidebar */}
-      <div
-        className={`
+    <div
+      className={`
           bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 
           shadow-sm fixed left-0 top-16 h-[calc(100vh-4rem)] z-40 
           transition-all duration-300
           ${isCollapsed ? "w-0 -ml-64" : "w-64 ml-0"}
           overflow-hidden
         `}
-        data-sidebar
+      data-sidebar
+    >
+      <div
+        className={`w-64 h-full flex flex-col ${
+          isCollapsed ? "opacity-0" : "opacity-100"
+        } transition-opacity duration-300`}
       >
-        <div
-          className={`w-64 ${
-            isCollapsed ? "opacity-0" : "opacity-100"
-          } transition-opacity duration-300`}
-        >
-          {/* Header */}
-          <div className="p-6 flex items-center justify-between border-b border-gray-200 dark:border-gray-700">
-            <div
-              className="cursor-pointer hover:opacity-80 transition-opacity"
-              onClick={() => navigate("/dashboard")}
-            >
-              <div className="flex items-baseline space-x-2">
-                <span className="font-bold text-gray-900 dark:text-white text-xl tracking-tight">
-                  ExpenseFlow
-                </span>
-              </div>
+        {/* Header */}
+        <div className="p-6 flex items-center justify-between border-b border-gray-200 dark:border-gray-700">
+          <div
+            className="cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() => navigate("/dashboard")}
+          >
+            <div className="flex items-baseline space-x-2">
+              <span className="font-bold text-gray-900 dark:text-white text-xl tracking-tight">
+                ExpenseFlow
+              </span>
             </div>
-
-            {/* Close Button */}
-            {!isCollapsed && (
-              <button
-                onClick={onToggle}
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-600 dark:text-gray-400"
-                title="Hide sidebar"
-              >
-                <ChevronLeftIcon className="w-5 h-5" />
-              </button>
-            )}
           </div>
 
-          {/* Navigation Items */}
-          <nav className="mt-6 space-y-2 px-4">
+          {/* Close Button */}
+          {!isCollapsed && (
+            <button
+              onClick={onToggle}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-600 dark:text-gray-400"
+              title="Hide sidebar"
+            >
+              <ChevronLeftIcon className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+
+        {/* Navigation Items */}
+        <div className="flex-1 overflow-y-auto px-4 pb-6">
+          <nav className="mt-6 space-y-2">
             {sidebarItems.map((item) => {
               const IconComponent = item.icon;
               const isDisabled = item.disabled || false;
@@ -166,28 +165,28 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
                   }}
                   disabled={isDisabled}
                   className={`
-                    w-full flex items-center space-x-3 px-4 py-3 rounded-lg 
-                    transition-all duration-200 group relative
-                    ${
-                      isDisabled
-                        ? "opacity-50 cursor-not-allowed text-gray-400 dark:text-gray-500"
-                        : isActive(item.path)
-                          ? "bg-gradient-to-r from-blue-500/10 to-blue-600/10 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200 dark:border-blue-800 shadow-sm"
-                          : "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700/50 border border-transparent"
-                    }
-                  `}
+                      w-full flex items-center space-x-3 px-4 py-4 sm:py-3 rounded-lg 
+                      transition-all duration-200 group relative active:scale-[0.98]
+                      ${
+                        isDisabled
+                          ? "opacity-50 cursor-not-allowed text-gray-400 dark:text-gray-500"
+                          : isActive(item.path)
+                            ? "bg-gradient-to-r from-blue-500/10 to-blue-600/10 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200 dark:border-blue-800 shadow-sm"
+                            : "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700/50 border border-transparent hover:shadow-sm"
+                      }
+                    `}
                 >
                   <IconComponent
                     className={`
-                      w-5 h-5 transition-colors flex-shrink-0
-                      ${
-                        isDisabled
-                          ? "text-gray-400 dark:text-gray-500"
-                          : isActive(item.path)
-                            ? "text-blue-600 dark:text-blue-400"
-                            : "text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300"
-                      }
-                    `}
+                        w-5 h-5 transition-colors flex-shrink-0
+                        ${
+                          isDisabled
+                            ? "text-gray-400 dark:text-gray-500"
+                            : isActive(item.path)
+                              ? "text-blue-600 dark:text-blue-400"
+                              : "text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300"
+                        }
+                      `}
                   />
                   <span className="font-medium text-sm whitespace-nowrap">
                     {item.label}
@@ -225,27 +224,27 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
               </div>
             </div>
           )}
+        </div>
 
-          {/* Bottom Section */}
-          <div className="absolute bottom-0 left-0 right-0 px-4 pb-4">
-            <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-              <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
-                ExpenseFlow v1.0
-              </div>
-              <div
-                className={`text-xs text-center mt-1 px-2 py-1 rounded-full ${
-                  isAdmin()
-                    ? "bg-gradient-to-r from-blue-100 to-blue-50 text-blue-700 dark:from-blue-900/30 dark:text-blue-300"
-                    : "bg-gradient-to-r from-green-100 to-green-50 text-green-700 dark:from-green-900/30 dark:text-green-300"
-                }`}
-              >
-                {isAdmin() ? "Admin" : "Manager"}
-              </div>
+        {/* Bottom Section */}
+        <div className="px-4 pb-4">
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+            <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
+              ExpenseFlow v1.0
+            </div>
+            <div
+              className={`text-xs text-center mt-1 px-2 py-1 rounded-full ${
+                isAdmin()
+                  ? "bg-gradient-to-r from-blue-100 to-blue-50 text-blue-700 dark:from-blue-900/30 dark:text-blue-300"
+                  : "bg-gradient-to-r from-green-100 to-green-50 text-green-700 dark:from-green-900/30 dark:text-green-300"
+              }`}
+            >
+              {isAdmin() ? "Admin" : "Manager"}
             </div>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

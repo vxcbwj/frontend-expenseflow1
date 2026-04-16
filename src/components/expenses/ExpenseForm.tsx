@@ -18,6 +18,8 @@ import { receiptAPI, Receipt } from "../../services/receiptAPI";
 import { useFileUpload } from "../../hooks/useFileUpload";
 import { Loader2 } from "lucide-react";
 
+import { EXPENSE_CATEGORIES, EXPENSE_DEPARTMENTS } from "../../utils/constants";
+
 interface ExpenseFormProps {
   onExpenseAdded: () => void;
   expense?: Expense; // For edit mode
@@ -32,21 +34,10 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   const { company } = useCompany(); // Changed from currentCompany to company
   const { canCreateExpenses } = usePermissions(); // Using new hook
   const { files, addFiles, removeFile, clearFiles, errors } = useFileUpload();
-  const categories = [
-    "electricity",
-    "water",
-    "internet",
-    "rent",
-    "supplies",
-    "salaries",
-    "marketing",
-    "transportation",
-    "other",
-  ];
 
   const [formData, setFormData] = useState<CreateExpenseData>({
     amount: 0,
-    category: "other",
+    category: "Other",
     department: "Other",
     description: "",
     date: new Date().toISOString().split("T")[0],
@@ -159,8 +150,12 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
       // Refresh parent component
       onExpenseAdded();
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to save expense");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError((err as any).response?.data?.error || err.message);
+      } else {
+        setError("Failed to save expense");
+      }
     } finally {
       setLoading(false);
       setUploading(false);
@@ -254,9 +249,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 required
                 className="w-full h-9 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600 text-sm"
               >
-                {categories.map((category) => (
+                {EXPENSE_CATEGORIES.map((category) => (
                   <option key={category} value={category}>
-                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                    {category}
                   </option>
                 ))}
               </select>
@@ -279,13 +274,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 className="w-full h-9 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600 text-sm"
               >
                 <option value="">Select Department</option>
-                <option value="Sales & Marketing">Sales & Marketing</option>
-                <option value="Operations">Operations</option>
-                <option value="Technology">Technology</option>
-                <option value="Finance">Finance</option>
-                <option value="Human Resources">Human Resources</option>
-                <option value="Administration">Administration</option>
-                <option value="Other">Other</option>
+                {EXPENSE_DEPARTMENTS.map((dept) => (
+                  <option key={dept} value={dept}>{dept}</option>
+                ))}
               </select>
             </div>
 
@@ -374,9 +365,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
               >
-                {categories.map((category) => (
+                {EXPENSE_CATEGORIES.map((category) => (
                   <option key={category} value={category}>
-                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                    {category}
                   </option>
                 ))}
               </select>
@@ -399,13 +390,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
               >
                 <option value="">Select Department</option>
-                <option value="Sales & Marketing">Sales & Marketing</option>
-                <option value="Operations">Operations</option>
-                <option value="Technology">Technology</option>
-                <option value="Finance">Finance</option>
-                <option value="Human Resources">Human Resources</option>
-                <option value="Administration">Administration</option>
-                <option value="Other">Other</option>
+                {EXPENSE_DEPARTMENTS.map((dept) => (
+                  <option key={dept} value={dept}>{dept}</option>
+                ))}
               </select>
             </div>
           </div>

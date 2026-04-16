@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { authAPI } from "../../services/api";
+import { useAuth } from "../../contexts/AuthContext";
+import { useCompany } from "../../contexts/CompanyContext";
+import toast from "react-hot-toast";
 
 interface RegisterFormProps {
   onSuccess: () => void;
@@ -10,6 +13,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
   onSuccess,
   onToggleToLogin,
 }) => {
+  const { login } = useAuth();
+  const { fetchCompany } = useCompany();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -20,9 +25,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
     invitationToken: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [registrationType, setRegistrationType] = useState<"admin" | "manager">(
-    "manager"
+    "manager",
   );
   const [invitationToken, setInvitationToken] = useState("");
 
@@ -45,10 +49,24 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
     });
   };
 
+  const isValidPhoneNumber = (value: string) => {
+    if (!value) return true;
+    const normalized = value.replace(/\s+/g, "");
+    if (/^\+213\d{9}$/.test(normalized)) return true;
+    return /^\+\d{4,15}$/.test(normalized);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
+
+    if (formData.phone && !isValidPhoneNumber(formData.phone)) {
+      toast.error(
+        "Please enter a valid phone number. Algerian numbers must start with +213 followed by 9 digits.",
+      );
+      setLoading(false);
+      return;
+    }
 
     try {
       // Prepare registration data
@@ -70,12 +88,15 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
       const response = await authAPI.register(registrationData);
 
       if (response.success) {
-        localStorage.setItem("token", response.token);
-        localStorage.setItem("user", JSON.stringify(response.user));
+        await login(formData.email, formData.password);
+        await fetchCompany();
+        toast.success("Account created successfully!");
         onSuccess();
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || "Registration failed");
+      // Global axios interceptor toasts the exact backend error payload. We only need to catch 401s manually if login part fails.
+      if (err.response?.status === 401)
+        toast.error("Could not auto-login after registration");
     } finally {
       setLoading(false);
     }
@@ -143,12 +164,6 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all"
             placeholder="Enter invitation token (if you have one)"
           />
-        </div>
-      )}
-
-      {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg mb-4 transition-all">
-          {error}
         </div>
       )}
 
@@ -229,10 +244,11 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
           <input
             type="tel"
             name="phone"
+            id="phone"
             value={formData.phone}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all"
-            placeholder="Phone number"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            placeholder="+213 XX XX XX XX XX"
           />
         </div>
 

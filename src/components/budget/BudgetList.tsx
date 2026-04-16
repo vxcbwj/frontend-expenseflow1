@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import BudgetForm from "./BudgetForm";
+import ConfirmDialog from "../ui/ConfirmDialog";
 import { Shield } from "lucide-react";
 
 interface BudgetWithProgress extends Budget {
@@ -41,53 +42,23 @@ const BudgetList: React.FC<BudgetListProps> = ({
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
   const [calculating, setCalculating] = useState(true);
+  const [confirmState, setConfirmState] = useState<{
+    open: boolean;
+    onConfirm: () => void;
+  } | null>(null);
 
-  // ========== UPDATED PERMISSION SYSTEM ==========
+  // ========== PERMISSION CHECKS ==========
   const userCanViewBudgets = canViewBudgets();
   const userCanManageBudgets = canManageBudgets();
   const showEditButtons =
     canEdit !== undefined ? canEdit : userCanManageBudgets;
 
-  // If user doesn't have permission to view budgets at all
-  if (!userCanViewBudgets) {
-    return (
-      <Card>
-        <CardContent className="py-8 text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/20 dark:to-red-900/10 flex items-center justify-center">
-            <Shield className="h-8 w-8 text-red-500 dark:text-red-400" />
-          </div>
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
-            Access Denied
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            You don't have permission to view budgets.
-          </p>
-          <div className="space-y-2">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Required permission: VIEW_BUDGETS
-            </p>
-            <Badge
-              variant="outline"
-              className={`${
-                user?.role === "admin"
-                  ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
-                  : "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300"
-              }`}
-            >
-              Your role: {user?.role === "admin" ? "Administrator" : "Manager"}
-            </Badge>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  // ========== DATA FETCHING ==========
 
   const fetchExpenses = async () => {
     if (!company) return;
-
     try {
       const response = await expenseAPI.getExpenses(company.id);
-      // ✅ FIXED: Handle the response properly
       if (response.success) {
         setExpenses(response.expenses);
       }
@@ -134,13 +105,7 @@ const BudgetList: React.FC<BudgetListProps> = ({
         status = "warning";
       }
 
-      return {
-        ...budget,
-        currentSpending,
-        percentageUsed,
-        remaining,
-        status,
-      };
+      return { ...budget, currentSpending, percentageUsed, remaining, status };
     });
 
     setBudgetsWithProgress(budgetsWithProgressData);
@@ -159,21 +124,21 @@ const BudgetList: React.FC<BudgetListProps> = ({
     }
   }, [budgets, expenses]);
 
-  const handleDeleteBudget = async (budgetId: string) => {
-    if (!window.confirm("Are you sure you want to delete this budget?")) {
-      return;
-    }
+  // ========== HANDLERS ==========
 
-    try {
-      await budgetAPI.deleteBudget(budgetId);
-      onBudgetUpdated();
-    } catch (error: any) {
-      console.error("Failed to delete budget:", error);
-      alert(
-        "Failed to delete budget: " +
-          (error.response?.data?.error || "Unknown error"),
-      );
-    }
+  const handleDeleteBudget = (budgetId: string) => {
+    setConfirmState({
+      open: true,
+      onConfirm: async () => {
+        try {
+          await budgetAPI.deleteBudget(budgetId);
+          onBudgetUpdated();
+        } catch (error: any) {
+          console.error("Failed to delete budget:", error);
+        }
+        setConfirmState(null);
+      },
+    });
   };
 
   const handleEditBudget = (budget: Budget) => {
@@ -188,6 +153,8 @@ const BudgetList: React.FC<BudgetListProps> = ({
     setEditingBudget(null);
     onBudgetUpdated();
   };
+
+  // ========== HELPERS ==========
 
   const getStatusConfig = (status: string) => {
     switch (status) {
@@ -228,24 +195,33 @@ const BudgetList: React.FC<BudgetListProps> = ({
 
   const getCategoryIcon = (category: string) => {
     const icons: { [key: string]: string } = {
-      electricity: "⚡",
-      water: "💧",
-      internet: "🌐",
-      rent: "🏠",
-      supplies: "📦",
-      salaries: "💰",
-      marketing: "📢",
-      transportation: "🚗",
-      other: "📋",
+      "Office Supplies": "📎",
+      Software: "💻",
+      Hardware: "🖥️",
+      Travel: "✈️",
+      "Meals & Entertainment": "🍽️",
+      Marketing: "📢",
+      Utilities: "⚡",
+      Rent: "🏠",
+      Salaries: "💰",
+      Consulting: "👔",
+      Insurance: "🛡️",
+      Training: "🎓",
+      Maintenance: "🔧",
+      Shipping: "🚚",
+      Advertising: "📺",
+      Legal: "⚖️",
+      Taxes: "🧾",
+      Other: "📋",
     };
     return icons[category] || "📋";
   };
 
   const formatCurrency = (amount: number) => {
-    const currency = company?.currency || "USD";
-    return new Intl.NumberFormat("en-US", {
+    const currency = company?.currency || "DZD";
+    return new Intl.NumberFormat("fr-DZ", {
       style: "currency",
-      currency: currency,
+      currency,
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(amount);
@@ -253,7 +229,6 @@ const BudgetList: React.FC<BudgetListProps> = ({
 
   const formatDate = (dateString: string | undefined | null) => {
     if (!dateString) return "No date";
-
     try {
       return new Date(dateString).toLocaleDateString("en-US", {
         month: "short",
@@ -261,10 +236,44 @@ const BudgetList: React.FC<BudgetListProps> = ({
         year: "numeric",
       });
     } catch (error) {
-      console.error("Error formatting date:", dateString, error);
       return "Invalid date";
     }
   };
+
+  // ========== ACCESS DENIED CARD ==========
+  // Declared before early returns so it is in scope for the final return
+  const accessDeniedCard = (
+    <Card>
+      <CardContent className="py-8 text-center">
+        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/20 dark:to-red-900/10 flex items-center justify-center">
+          <Shield className="h-8 w-8 text-red-500 dark:text-red-400" />
+        </div>
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
+          Access Denied
+        </h3>
+        <p className="text-gray-600 dark:text-gray-400 mb-4">
+          You don't have permission to view budgets.
+        </p>
+        <div className="space-y-2">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Required permission: VIEW_BUDGETS
+          </p>
+          <Badge
+            variant="outline"
+            className={
+              user?.role === "admin"
+                ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                : "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300"
+            }
+          >
+            Your role: {user?.role === "admin" ? "Administrator" : "Manager"}
+          </Badge>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  // ========== EARLY GUARD RETURNS ==========
 
   if (loading || calculating) {
     return (
@@ -311,11 +320,11 @@ const BudgetList: React.FC<BudgetListProps> = ({
               </p>
               <Badge
                 variant="outline"
-                className={`${
+                className={
                   user?.role === "admin"
                     ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
                     : "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300"
-                }`}
+                }
               >
                 Your role:{" "}
                 {user?.role === "admin" ? "Administrator" : "Manager"}
@@ -327,7 +336,9 @@ const BudgetList: React.FC<BudgetListProps> = ({
     );
   }
 
-  return (
+  // ========== MAIN CONTENT ==========
+
+  const mainContent = (
     <div className="space-y-6">
       <Card>
         <CardHeader>
@@ -396,17 +407,13 @@ const BudgetList: React.FC<BudgetListProps> = ({
           return (
             <Card
               key={budget.id}
-              className={`
-                border-l-4 
-                ${
-                  budget.status === "exceeded"
-                    ? "border-l-red-500"
-                    : budget.status === "warning"
-                      ? "border-l-orange-500"
-                      : "border-l-green-500"
-                }
-                hover:shadow-md transition-shadow
-              `}
+              className={`border-l-4 ${
+                budget.status === "exceeded"
+                  ? "border-l-red-500"
+                  : budget.status === "warning"
+                    ? "border-l-orange-500"
+                    : "border-l-green-500"
+              } hover:shadow-md transition-shadow`}
             >
               <CardContent className="pt-6">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
@@ -436,7 +443,7 @@ const BudgetList: React.FC<BudgetListProps> = ({
                             {statusConfig.text}
                           </Badge>
                           <span className="text-xs text-gray-500 dark:text-gray-400">
-                            {formatDate(budget.startDate)} -{" "}
+                            {formatDate(budget.startDate)} –{" "}
                             {formatDate(budget.endDate)}
                           </span>
                         </div>
@@ -464,16 +471,13 @@ const BudgetList: React.FC<BudgetListProps> = ({
 
                       <div className="relative h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                         <div
-                          className={`
-                            absolute top-0 left-0 h-full rounded-full transition-all duration-300
-                            ${
-                              budget.status === "exceeded"
-                                ? "bg-red-500"
-                                : budget.status === "warning"
-                                  ? "bg-orange-500"
-                                  : "bg-green-500"
-                            }
-                          `}
+                          className={`absolute top-0 left-0 h-full rounded-full transition-all duration-300 ${
+                            budget.status === "exceeded"
+                              ? "bg-red-500"
+                              : budget.status === "warning"
+                                ? "bg-orange-500"
+                                : "bg-green-500"
+                          }`}
                           style={{
                             width: `${Math.min(budget.percentageUsed, 100)}%`,
                           }}
@@ -494,11 +498,11 @@ const BudgetList: React.FC<BudgetListProps> = ({
                           </span>
                         </span>
                         <span
-                          className={`${
+                          className={
                             budget.remaining < 0
                               ? "text-red-600 font-semibold"
                               : "text-gray-500 dark:text-gray-400"
-                          }`}
+                          }
                         >
                           {budget.remaining < 0
                             ? "Over budget: " +
@@ -542,6 +546,23 @@ const BudgetList: React.FC<BudgetListProps> = ({
         })}
       </div>
     </div>
+  );
+
+  // ========== SINGLE FINAL RETURN ==========
+
+  return (
+    <>
+      {userCanViewBudgets ? mainContent : accessDeniedCard}
+      <ConfirmDialog
+        isOpen={confirmState?.open ?? false}
+        title="Delete Budget"
+        message="Are you sure you want to delete this budget? This action cannot be undone."
+        confirmLabel="Delete"
+        variant="danger"
+        onConfirm={confirmState?.onConfirm ?? (() => {})}
+        onCancel={() => setConfirmState(null)}
+      />
+    </>
   );
 };
 

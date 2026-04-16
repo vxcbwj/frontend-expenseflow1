@@ -11,7 +11,7 @@ const CompanyManagement: React.FC = () => {
   const [formData, setFormData] = useState({
     name: "",
     industry: "",
-    currency: "USD",
+    currency: "DZD",
   });
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState("");
@@ -66,7 +66,7 @@ const CompanyManagement: React.FC = () => {
       setTimeout(() => {
         setShowForm(false);
         setEditingCompany(null);
-        setFormData({ name: "", industry: "", currency: "USD" });
+        setFormData({ name: "", industry: "", currency: "DZD" });
         setSuccessMessage("");
       }, 1500);
     } catch (err: any) {
@@ -102,7 +102,7 @@ const CompanyManagement: React.FC = () => {
   const handleCancel = () => {
     setShowForm(false);
     setEditingCompany(null);
-    setFormData({ name: "", industry: "", currency: "USD" });
+    setFormData({ name: "", industry: "", currency: "DZD" });
     setError("");
     setSuccessMessage("");
   };
@@ -139,7 +139,7 @@ const CompanyManagement: React.FC = () => {
             <button
               onClick={() => {
                 setEditingCompany(null);
-                setFormData({ name: "", industry: "", currency: "USD" });
+                setFormData({ name: "", industry: "", currency: "DZD" });
                 setShowForm(!showForm);
               }}
               className="bg-blue-800 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
@@ -205,10 +205,10 @@ const CompanyManagement: React.FC = () => {
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
               >
+                <option value="DZD">DZD (Algerian Dinar) - د.ج</option>
                 <option value="USD">USD ($)</option>
                 <option value="EUR">EUR (€)</option>
                 <option value="GBP">GBP (£)</option>
-                <option value="DZD">DZD (د.ج)</option>
               </select>
             </div>
             <div className="flex space-x-3">

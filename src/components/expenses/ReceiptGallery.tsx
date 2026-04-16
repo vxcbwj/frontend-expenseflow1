@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { FileText, Download, Trash2, Eye } from 'lucide-react';
 import { Receipt } from '../../services/receiptAPI';
+import ConfirmDialog from '../ui/ConfirmDialog';
 
 interface ReceiptGalleryProps {
   receipts: Receipt[];
@@ -16,12 +18,12 @@ export const ReceiptGallery: React.FC<ReceiptGalleryProps> = ({
   canDelete = false,
   loading = false
 }) => {
-  const handleDelete = async (receiptId: string, fileName: string) => {
-    if (!onDelete) return;
+  const [deleteConfirm, setDeleteConfirm] = useState<{id: string, name: string} | null>(null);
 
-    if (window.confirm(`Delete ${fileName}? This cannot be undone.`)) {
-      await onDelete(receiptId);
-    }
+  const confirmDelete = async () => {
+    if (!onDelete || !deleteConfirm) return;
+    await onDelete(deleteConfirm.id);
+    setDeleteConfirm(null);
   };
 
   // Empty state
@@ -92,7 +94,7 @@ export const ReceiptGallery: React.FC<ReceiptGalleryProps> = ({
             </a>
             {canDelete && onDelete && (
               <button
-                onClick={() => handleDelete(receipt._id, receipt.fileName)}
+                onClick={() => setDeleteConfirm({id: receipt._id, name: receipt.fileName})}
                 className="p-2 bg-white rounded-full hover:bg-red-100"
                 title="Delete"
               >
@@ -112,6 +114,17 @@ export const ReceiptGallery: React.FC<ReceiptGalleryProps> = ({
           </div>
         </div>
       ))}
+
+      <ConfirmDialog
+        isOpen={!!deleteConfirm}
+        title="Delete Receipt"
+        message={`Are you sure you want to delete ${deleteConfirm?.name}? This action cannot be undone.`}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteConfirm(null)}
+      />
     </div>
   );
 };

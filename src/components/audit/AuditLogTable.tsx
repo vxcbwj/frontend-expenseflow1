@@ -208,7 +208,7 @@ const AuditLogTable: React.FC<AuditLogTableProps> = ({
 
               return (
                 <tr
-                  key={log.id}
+                  key={log.id || (log as any)._id || `log-${log.timestamp}-${log.action}-${log.entity}`}
                   onClick={() => onRowClick?.(log)}
                   className={`border-b border-border transition-colors ${
                     onRowClick
@@ -324,7 +324,7 @@ const AuditLogTable: React.FC<AuditLogTableProps> = ({
 
           return (
             <div
-              key={log.id}
+              key={log.id || (log as any)._id || `log-${log.timestamp}-${log.action}-${log.entity}`}
               onClick={() => onRowClick?.(log)}
               className="bg-card border border-border rounded-lg p-4 hover:bg-muted/50 transition-colors cursor-pointer"
             >

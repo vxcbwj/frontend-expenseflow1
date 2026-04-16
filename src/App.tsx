@@ -1,23 +1,25 @@
 // App.tsx - UPDATED FOR 2-ROLE SYSTEM
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense, lazy } from "react";
+import { Toaster } from "react-hot-toast";
 import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
 import { CompanyProvider } from "./contexts/CompanyContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { usePermissions } from "./hooks/userPermissions";
 import Navbar from "./components/layout/Navbar";
 import Sidebar from "./components/layout/Sidebar";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import Dashboard from "./pages/Dashboard";
-import ProfilePage from "./pages/ProfilePage";
-import CompanyManagement from "./components/company/CompanyManagement";
-import AnalyticsPage from "./pages/AnalyticsPage";
-import BudgetPage from "./pages/BudgetPage";
-import ExpenseListPage from "./pages/ExpenseListPage";
-import CompanyUsersPage from "./pages/CompanyUsersPage";
-import AuditLogsPage from "./pages/AuditLogsPage";
-import LandingPage from "./pages/LandingPage";
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+const RegisterPage = lazy(() => import("./pages/RegisterPage"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+const CompanyManagement = lazy(() => import("./components/company/CompanyManagement"));
+const AnalyticsPage = lazy(() => import("./pages/AnalyticsPage"));
+const BudgetPage = lazy(() => import("./pages/BudgetPage"));
+const ExpenseListPage = lazy(() => import("./pages/ExpenseListPage"));
+const CompanyUsersPage = lazy(() => import("./pages/CompanyUsersPage"));
+const AuditLogsPage = lazy(() => import("./pages/AuditLogsPage"));
+const LandingPage = lazy(() => import("./pages/LandingPage"));
+
 
 // ========== ROUTE PROTECTION COMPONENTS ==========
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -114,8 +116,9 @@ function AppContent() {
                 mt-16 p-6
               `}
             >
-              <div className="max-w-7xl mx-auto">
-                <Routes>
+              <div className="max-w-7xl mx-auto h-full">
+                <Suspense fallback={<div className="flex justify-center items-center min-h-[50vh]"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div></div>}>
+                  <Routes>
                   {/* ========== PUBLIC ROUTES ========== */}
                   <Route
                     path="/"
@@ -224,7 +227,8 @@ function AppContent() {
                       </div>
                     }
                   />
-                </Routes>
+                  </Routes>
+                </Suspense>
               </div>
             </main>
           </div>
@@ -239,6 +243,7 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <CompanyProvider>
+          <Toaster position="top-right" toastOptions={{ className: 'dark:bg-gray-800 dark:text-white border border-gray-200 dark:border-gray-700' }} />
           <AppContent />
         </CompanyProvider>
       </AuthProvider>

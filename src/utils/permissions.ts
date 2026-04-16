@@ -24,7 +24,7 @@ export const PERMISSIONS = {
 
 export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
 
-const ROLE_PERMISSIONS: Record<string, Permission[]> = {
+export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
   admin: [
     PERMISSIONS.CREATE_COMPANY,
     PERMISSIONS.DELETE_COMPANY,
@@ -57,7 +57,7 @@ const ROLE_PERMISSIONS: Record<string, Permission[]> = {
 
 export const hasPermission = (
   user: UserProfile | null,
-  permission: Permission | string
+  permission: Permission | string,
 ): boolean => {
   if (!user) return false;
 
@@ -81,7 +81,7 @@ export const isManager = (user: UserProfile | null): boolean => {
 
 export const canManageCompany = (
   user: UserProfile | null,
-  companyId?: string
+  companyId?: string,
 ): boolean => {
   if (!isAdmin(user)) return false;
   if (!companyId) return true;
@@ -93,14 +93,14 @@ export const canManageCompany = (
 
 export const canInviteManagers = (
   user: UserProfile | null,
-  companyId?: string
+  companyId?: string,
 ): boolean => {
   return canManageCompany(user, companyId);
 };
 
 export const canAccessCompany = (
   user: UserProfile | null,
-  companyId?: string
+  companyId?: string,
 ): boolean => {
   if (!user || !companyId) return false;
 

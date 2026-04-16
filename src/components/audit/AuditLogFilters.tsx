@@ -1,5 +1,5 @@
 // components/audit/AuditLogFilters.tsx
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Filter, X, Calendar, Activity, User } from "lucide-react";
 import { AuditLogFilters } from "../../services/auditLogAPI";
 
@@ -24,7 +24,7 @@ const AuditLogFiltersComponent: React.FC<AuditLogFiltersProps> = ({
   const [userEmail, setUserEmail] = useState<string>("");
   const [limit, setLimit] = useState<number>(100);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Get today's date for max attribute
   const today = new Date().toISOString().split("T")[0];
@@ -57,15 +57,15 @@ const AuditLogFiltersComponent: React.FC<AuditLogFiltersProps> = ({
 
   // Apply debounced filter changes
   useEffect(() => {
-    if (debounceTimer) clearTimeout(debounceTimer);
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
 
-    const timer = setTimeout(() => {
+    debounceTimerRef.current = setTimeout(() => {
       handleFilterChange();
     }, 500);
 
-    setDebounceTimer(timer);
-
-    return () => clearTimeout(timer);
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    };
   }, [startDate, endDate, action, entity, userEmail, limit, handleFilterChange]);
 
   // Reset all filters

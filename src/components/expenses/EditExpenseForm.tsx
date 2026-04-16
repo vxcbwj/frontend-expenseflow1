@@ -24,15 +24,24 @@ const EditExpenseForm: React.FC<EditExpenseFormProps> = ({
 }) => {
   const { canManageExpenses, isAdmin } = usePermissions();
   const categories = [
-    "electricity",
-    "water",
-    "internet",
-    "rent",
-    "supplies",
-    "salaries",
-    "marketing",
-    "transportation",
-    "other",
+    "Office Supplies",
+    "Software",
+    "Hardware",
+    "Travel",
+    "Meals & Entertainment",
+    "Marketing",
+    "Utilities",
+    "Rent",
+    "Salaries",
+    "Consulting",
+    "Insurance",
+    "Training",
+    "Maintenance",
+    "Shipping",
+    "Advertising",
+    "Legal",
+    "Taxes",
+    "Other",
   ];
 
   // Permission check for 2-role system

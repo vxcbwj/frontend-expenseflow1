@@ -28,7 +28,7 @@ export const adaptBackendUserForFrontend = (backendUser: any): UserProfile => {
 
     preferences: backendUser.preferences || {
       theme: "auto",
-      currency: "USD",
+      currency: "DZD",
       language: "en",
     },
     createdAt: backendUser.createdAt,
@@ -42,12 +42,4 @@ export const getUserCompanyId = (user: UserProfile): string | undefined => {
 
 export const getUserRole = (user: UserProfile): string => {
   return (user.role || user.globalRole || "manager").toLowerCase();
-};
-
-export const isAdmin = (user: UserProfile): boolean => {
-  return getUserRole(user) === "admin";
-};
-
-export const isManager = (user: UserProfile): boolean => {
-  return getUserRole(user) === "manager";
 };

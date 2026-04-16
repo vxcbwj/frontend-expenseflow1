@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
+import { useCompany } from "../../contexts/CompanyContext";
+import toast from "react-hot-toast";
 
 interface LoginFormProps {
   onSuccess: () => void;
@@ -11,12 +13,13 @@ const LoginForm: React.FC<LoginFormProps> = ({
   onToggleToRegister,
 }) => {
   const { login } = useAuth();
+  const { fetchCompany } = useCompany();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -28,19 +31,22 @@ const LoginForm: React.FC<LoginFormProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
+    
 
     try {
       const response = await login(formData.email, formData.password);
 
       if (response.success) {
         // AuthContext handles localStorage storage automatically
+        // Hydrate company before dashboard mount
+        await fetchCompany();
+        toast.success(`Welcome back!`);
         onSuccess();
       } else {
-        setError(response.message || "Login failed");
+        toast.error(response.message || "Login failed");
       }
     } catch (err: any) {
-      setError(err.message || "Login failed");
+      if (err.response?.status === 401) toast.error("Invalid email or password");
     } finally {
       setLoading(false);
     }
@@ -52,11 +58,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
         Login to ExpenseFlow
       </h2>
 
-      {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg mb-4 transition-all">
-          {error}
-        </div>
-      )}
+      
 
       <form onSubmit={handleSubmit}>
         <div className="mb-4">

@@ -2,17 +2,19 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MonthlyTrend } from "../../services/analyticsAPI";
+import { useCompany } from "../../contexts/CompanyContext";
 
 interface SpendingTrendsProps {
   data: MonthlyTrend[];
 }
 
 const SpendingTrends: React.FC<SpendingTrendsProps> = ({ data }) => {
+  const { company } = useCompany();
   // Format currency function
   const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("fr-DZ", {
       style: "currency",
-      currency: "USD",
+      currency: company?.currency || "DZD",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
@@ -20,9 +22,9 @@ const SpendingTrends: React.FC<SpendingTrendsProps> = ({ data }) => {
 
   // Format compact currency for tooltips
   const formatCompactCurrency = (amount: number): string => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("fr-DZ", {
       style: "currency",
-      currency: "USD",
+      currency: company?.currency || "DZD",
       notation: "compact",
       maximumFractionDigits: 1,
     }).format(amount);

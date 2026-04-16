@@ -2,17 +2,19 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { OverviewData } from "../../services/analyticsAPI";
+import { useCompany } from "../../contexts/CompanyContext";
 
 interface AnalyticsOverviewProps {
   data: OverviewData;
 }
 
 const AnalyticsOverview: React.FC<AnalyticsOverviewProps> = ({ data }) => {
+  const { company } = useCompany();
   // Format currency function
   const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("fr-DZ", {
       style: "currency",
-      currency: "USD",
+      currency: company?.currency || "DZD",
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(amount);

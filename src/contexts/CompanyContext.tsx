@@ -5,6 +5,8 @@ import React, {
   useContext,
   useEffect,
   useCallback,
+  useMemo,
+  useRef,
   ReactNode,
 } from "react";
 import api from "../services/api";
@@ -113,9 +115,16 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({
   const [company, setCompany] = useState<Company | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const hasFetchedRef = useRef(false);
 
-  // Fetch company
+  // Fetch company — guarded to fire only once per session
   const fetchCompany = useCallback(async (): Promise<Company | null> => {
+    // Prevent duplicate fetches
+    if (hasFetchedRef.current) {
+      return company;
+    }
+    hasFetchedRef.current = true;
+
     setLoading(true);
     setError(null);
 
@@ -142,13 +151,13 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({
     } catch (err: any) {
       console.error("❌ CompanyContext: Fetch company error:", err);
 
-      // Handle specific error cases
+      // Handle specific error cases — set error ONCE, do not retry
       if (err.response?.status === 401) {
         setError("Authentication required. Please log in again.");
-        console.log("⚠️ 401 Unauthorized - Token may be invalid");
       } else if (err.response?.status === 403) {
         setError("Access denied to company");
-        console.log("⚠️ 403 Forbidden - User may not have company access");
+      } else if (err.code === "ERR_NETWORK" || err.code === "ERR_CONNECTION_REFUSED") {
+        setError("Server is unreachable. Please check your connection.");
       } else {
         setError(err.message || "Failed to load company");
       }
@@ -163,7 +172,7 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({
   // Create new company
   const createCompany = useCallback(
     async (
-      companyData: CreateCompanyData
+      companyData: CreateCompanyData,
     ): Promise<{ success: boolean; company?: Company; error?: string }> => {
       setLoading(true);
       setError(null);
@@ -176,7 +185,7 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({
         if (response.data.success) {
           console.log(
             "✅ Company created successfully:",
-            response.data.company
+            response.data.company,
           );
 
           // Set as current company
@@ -198,13 +207,13 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({
         setLoading(false);
       }
     },
-    []
+    [],
   );
 
   // Update company
   const updateCompany = useCallback(
     async (
-      companyData: UpdateCompanyData
+      companyData: UpdateCompanyData,
     ): Promise<{ success: boolean; company?: Company; error?: string }> => {
       if (!company) {
         return { success: false, error: "No company to update" };
@@ -240,7 +249,7 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({
         setLoading(false);
       }
     },
-    [company]
+    [company],
   );
 
   // Delete company
@@ -325,7 +334,7 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({
     }
   }, [company]);
 
-  // Initialize on mount and when auth changes
+  // Initialize on mount — fires once
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -335,18 +344,22 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({
       console.log("⚠️ CompanyContext: No token found, skipping initialization");
       setCompany(null);
     }
-  }, [fetchCompany]);
+  }, []); // stable — fetchCompany is already memoized with []
 
-  // Listen for auth changes
+  // Listen for auth changes (login/logout from other components)
   useEffect(() => {
     const handleAuthChange = () => {
       const token = localStorage.getItem("token");
       if (token) {
         console.log("🔄 CompanyContext: Auth changed, refreshing company");
+        // Reset guard so a new login can fetch
+        hasFetchedRef.current = false;
         fetchCompany();
       } else {
         console.log("⚠️ CompanyContext: Auth cleared, resetting company");
+        hasFetchedRef.current = false;
         setCompany(null);
+        setError(null);
       }
     };
 
@@ -355,25 +368,11 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({
   }, [fetchCompany]);
 
   // Determine if user is admin
-  const isAdmin = (() => {
-    const user = localStorage.getItem("user");
-    if (!user) return false;
+  // TODO: derive from AuthContext once circular dependency is resolved
+  const isAdmin = false;
 
-    try {
-      const parsedUser = JSON.parse(user);
-      const role = (
-        parsedUser.role ||
-        parsedUser.globalRole ||
-        ""
-      ).toLowerCase();
-      return role === "admin";
-    } catch {
-      return false;
-    }
-  })();
-
-  // Context value
-  const contextValue: CompanyContextType = {
+  // Memoized context value — prevents cascading re-renders to consumers
+  const contextValue = useMemo<CompanyContextType>(() => ({
     company,
     loading,
     error,
@@ -388,7 +387,7 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({
     // Helpers
     hasCompany: !!company,
     isAdmin,
-  };
+  }), [company, loading, error, fetchCompany, createCompany, updateCompany, deleteCompany, getCompanyUsers, isAdmin]);
 
   return (
     <CompanyContext.Provider value={contextValue}>

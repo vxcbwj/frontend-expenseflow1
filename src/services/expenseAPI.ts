@@ -1,6 +1,6 @@
 // frontend/src/services/expenseAPI.ts
 
-import api from "./api";
+import api, { handleApiError } from "./api";
 import { Receipt } from "./receiptAPI";
 
 export interface Expense {
@@ -117,14 +117,11 @@ export const expenseAPI = {
       const response = await api.post(`/expenses/${id}/approve`);
       console.log(`✅ Expense approved successfully`);
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("❌ Approve expense error:", error);
       return {
         success: false,
-        message:
-          error.response?.data?.error ||
-          error.message ||
-          "Failed to approve expense",
+        message: handleApiError(error, "Failed to approve expense"),
       };
     }
   },
@@ -146,14 +143,11 @@ export const expenseAPI = {
       const response = await api.post(`/expenses/${id}/reject`, { reason });
       console.log(`✅ Expense rejected successfully`);
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("❌ Reject expense error:", error);
       return {
         success: false,
-        message:
-          error.response?.data?.error ||
-          error.message ||
-          "Failed to reject expense",
+        message: handleApiError(error, "Failed to reject expense"),
       };
     }
   },

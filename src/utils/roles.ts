@@ -49,16 +49,3 @@ export const isAdmin = (user: any): boolean => {
 export const isManager = (user: any): boolean => {
   return hasRole(user, ROLES.MANAGER);
 };
-
-// Check if user is at least a certain role
-export const isAtLeastRole = (user: any, minRole: Role): boolean => {
-  if (!user?.globalRole && !user?.role) return false;
-
-  const userRole = (user.globalRole || user.role)?.toLowerCase() as Role;
-  const roleHierarchyOrder = [ROLES.MANAGER, ROLES.ADMIN] as const;
-
-  const userIndex = roleHierarchyOrder.indexOf(userRole);
-  const minIndex = roleHierarchyOrder.indexOf(minRole);
-
-  return userIndex >= minIndex;
-};

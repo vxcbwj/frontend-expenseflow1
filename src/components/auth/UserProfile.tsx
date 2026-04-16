@@ -37,7 +37,21 @@ const UserProfile: React.FC = () => {
     }
   };
 
+  const isValidPhoneNumber = (value: string) => {
+    if (!value) return true;
+    const normalized = value.replace(/\s+/g, "");
+    if (/^\+213\d{9}$/.test(normalized)) return true;
+    return /^\+\d{4,15}$/.test(normalized);
+  };
+
   const handleSave = async () => {
+    if (formData.phone && !isValidPhoneNumber(formData.phone)) {
+      setMessage(
+        "Please enter a valid phone number. Algerian numbers must start with +213 followed by 9 digits.",
+      );
+      return;
+    }
+
     try {
       const response = await userAPI.updateProfile(formData);
       if (response.success) {
@@ -56,7 +70,7 @@ const UserProfile: React.FC = () => {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
 
@@ -182,6 +196,7 @@ const UserProfile: React.FC = () => {
                 <input
                   type="tel"
                   name="phone"
+                  placeholder="+213 XX XX XX XX XX"
                   value={formData.phone ?? user.phone ?? ""}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
@@ -263,6 +278,7 @@ const UserProfile: React.FC = () => {
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                 >
+                  <option value="DZD">DZD (Algerian Dinar)</option>
                   <option value="USD">USD ($)</option>
                   <option value="EUR">EUR (€)</option>
                   <option value="GBP">GBP (£)</option>

@@ -1,8 +1,9 @@
-// services/api.ts - UPDATED User interface
 import axios from "axios";
+import toast from "react-hot-toast";
 
 const api = axios.create({
-  baseURL: (import.meta as any).env.VITE_API_URL || "http://localhost:5000",
+  baseURL:
+    ((import.meta as any).env.VITE_API_URL || "http://localhost:5000") + "/api",
   headers: {
     "Content-Type": "application/json",
   },
@@ -21,6 +22,29 @@ api.interceptors.request.use(
   },
 );
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Global toast for failures (skipping 401 because AuthContext handles redirects directly)
+    if (error.response?.status !== 401 && error.response?.status >= 400) {
+        const msg = error.response?.data?.error || error.response?.data?.message || "An unexpected error occurred.";
+        toast.error(msg);
+    }
+    if (error.response?.status === 401) {
+      // Clear localStorage
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+
+      // Remove Authorization header
+      delete api.defaults.headers.common["Authorization"];
+
+      // Dispatch event to trigger state update rather than hard reload
+      window.dispatchEvent(new Event("authChange"));
+    }
+    return Promise.reject(error);
+  },
+);
+
 // Updated User interface to match backend
 export interface User {
   id: string;
@@ -30,12 +54,6 @@ export interface User {
   phone?: string;
   avatar?: string;
   globalRole: string;
-  companyRoles: Array<{
-    companyId: string;
-    role: string;
-    joinedAt: string;
-  }>;
-  primaryCompanyId?: string;
   preferences: {
     theme: "light" | "dark" | "auto";
     currency: string;
@@ -80,10 +98,6 @@ export const hasRole = (role: string): boolean => {
   return user?.globalRole?.toLowerCase() === role.toLowerCase();
 };
 
-export const isSuperAdmin = (): boolean => {
-  return hasRole("super_admin");
-};
-
 export const authAPI = {
   register: async (
     userData: RegisterData,
@@ -120,4 +134,14 @@ export const authAPI = {
 };
 
 export default api;
-// Remove the duplicate export line at the bottom
+
+export const handleApiError = (error: unknown, defaultMessage: string = "An error occurred"): string => {
+  if (error && typeof error === "object" && "response" in error) {
+    const axiosError = error as any;
+    return axiosError.response?.data?.error || axiosError.response?.data?.message || axiosError.message || defaultMessage;
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return typeof error === "string" ? error : defaultMessage;
+};

@@ -1,15 +1,29 @@
 // components/expenses/ExpenseList.tsx - UPDATED
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { expenseAPI, type Expense } from "../../services/expenseAPI";
 //import { useAuth } from "@/contexts/AuthContext";
 import { useCompany } from "@/contexts/CompanyContext";
 import { usePermissions } from "../../hooks/userPermissions";
 import EditExpenseForm from "./EditExpenseForm";
-import ExpenseStatusBadge from "./ExpenseStatusBadge";
 import ExpenseApprovalActions from "./ExpenseApprovalActions";
-import { Paperclip } from "lucide-react";
+import {
+  Paperclip,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  Search,
+  X,
+} from "lucide-react";
 import { ReceiptModal } from "./ReceiptModal";
+import ConfirmDialog from "../ui/ConfirmDialog";
 import { Receipt } from "../../services/receiptAPI";
+import {
+  EXPENSE_DEPARTMENTS,
+  CATEGORY_COLORS,
+  DEPARTMENT_COLORS,
+} from "../../utils/constants";
+import ExpenseStatusBadge from "./ExpenseStatusBadge";
+import { formatCurrency } from "../../utils/formatCurrency";
 
 interface ExpenseListProps {
   expenses: Expense[];
@@ -38,12 +52,103 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const storedSearch =
+    typeof window !== "undefined"
+      ? sessionStorage.getItem("expenseSearchQuery") || ""
+      : "";
+  const [searchInput, setSearchInput] = useState<string>(storedSearch);
+  const [searchQuery, setSearchQuery] = useState<string>(storedSearch);
+  const searchDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [departmentFilter, setDepartmentFilter] = useState<string>("all");
+  const [sortField, setSortField] = useState<keyof Expense>("date");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [viewingReceipt, setViewingReceipt] = useState<{
     receipts: Receipt[];
     index: number;
   } | null>(null);
+
+  const handleSort = (field: keyof Expense) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("desc");
+    }
+  };
+
+  const escapeRegExp = (value: string): string =>
+    value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  const highlightText = (text: string, query: string) => {
+    if (!query) return text;
+    const escaped = escapeRegExp(query.trim());
+    const regex = new RegExp(`(${escaped})`, "gi");
+    return text.split(regex).map((part, idx) =>
+      regex.test(part) ? (
+        <span
+          key={idx}
+          className="bg-yellow-100 dark:bg-yellow-900/40 rounded px-0.5"
+        >
+          {part}
+        </span>
+      ) : (
+        part
+      ),
+    );
+  };
+
+  useEffect(() => {
+    if (searchDebounceRef.current) {
+      clearTimeout(searchDebounceRef.current);
+    }
+
+    searchDebounceRef.current = setTimeout(() => {
+      setSearchQuery(searchInput);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("expenseSearchQuery", searchInput);
+      }
+    }, 300);
+
+    return () => {
+      if (searchDebounceRef.current) {
+        clearTimeout(searchDebounceRef.current);
+      }
+    };
+  }, [searchInput]);
+
+  const SortableHeader = ({
+    field,
+    label,
+    align = "left",
+  }: {
+    field: keyof Expense;
+    label: string;
+    align?: "left" | "right";
+  }) => (
+    <th
+      className={`px-6 py-3 text-${align} text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors group select-none`}
+      onClick={() => handleSort(field)}
+    >
+      <div
+        className={`flex items-center space-x-1 ${align === "right" ? "justify-end" : ""}`}
+      >
+        <span>{label}</span>
+        <span className="text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-200">
+          {sortField === field ? (
+            sortDirection === "asc" ? (
+              <ArrowUp className="w-3 h-3" />
+            ) : (
+              <ArrowDown className="w-3 h-3" />
+            )
+          ) : (
+            <ArrowUpDown className="w-3 h-3 opacity-0 group-hover:opacity-50 transition-opacity" />
+          )}
+        </span>
+      </div>
+    </th>
+  );
 
   // Format date for display
   const formatDate = (dateString: string) => {
@@ -53,52 +158,21 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
     });
   };
 
-  // Format currency
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
+  const formatAmount = (amount: number) => {
+    return formatCurrency(amount, _company?.currency || "DZD");
   };
 
   // Category colors
   const getCategoryColor = (category: string) => {
-    const colors: { [key: string]: string } = {
-      electricity: "text-blue-600",
-      water: "text-cyan-600",
-      internet: "text-purple-600",
-      rent: "text-red-600",
-      supplies: "text-green-600",
-      salaries: "text-orange-600",
-      marketing: "text-pink-600",
-      transportation: "text-indigo-600",
-      other: "text-gray-600",
-    };
-    return colors[category] || "text-gray-600";
+    return CATEGORY_COLORS[category] || CATEGORY_COLORS["Other"];
   };
 
   // Department badge component
   const DepartmentBadge = ({ department }: { department: string }) => {
-    const colors: Record<string, string> = {
-      "Sales & Marketing":
-        "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-      Operations:
-        "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-      Technology:
-        "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
-      Finance:
-        "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
-      "Human Resources":
-        "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200",
-      Administration:
-        "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200",
-      Other: "bg-gray-100 text-gray-600 dark:bg-gray-900 dark:text-gray-400",
-    };
-
     return (
       <span
         className={`px-2 py-1 text-xs font-medium rounded-full ${
-          colors[department] || colors["Other"]
+          DEPARTMENT_COLORS[department] || DEPARTMENT_COLORS["Other"]
         }`}
       >
         {department}
@@ -113,20 +187,19 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
   // Note: Since we don't have canDeleteExpenses method, use canManageExpenses
   const canDeleteExpense = canManageExpenses;
 
-  const handleDeleteExpense = async (expenseId: string) => {
-    if (!window.confirm("Are you sure you want to delete this expense?")) {
-      return;
-    }
+  const handleDeleteExpense = async () => {
+    if (!deleteConfirmId) return;
 
     try {
       setLoading(true);
-      await expenseAPI.deleteExpense(expenseId);
+      await expenseAPI.deleteExpense(deleteConfirmId);
       onExpenseUpdated();
     } catch (err: any) {
       setError("Failed to delete expense");
       console.error("Delete error:", err);
     } finally {
       setLoading(false);
+      setDeleteConfirmId(null);
     }
   };
 
@@ -144,11 +217,49 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
   };
 
   // Filter expenses by status and department
-  const filteredExpenses = expenses.filter((expense) => {
-    if (statusFilter !== "all" && expense.status !== statusFilter) return false;
-    if (departmentFilter !== "all" && expense.department !== departmentFilter)
-      return false;
-    return true;
+  const filteredExpenses = useMemo(() => {
+    const query = searchQuery.toLowerCase().trim();
+
+    return expenses.filter((expense) => {
+      if (statusFilter !== "all" && expense.status !== statusFilter)
+        return false;
+      if (departmentFilter !== "all" && expense.department !== departmentFilter)
+        return false;
+
+      if (!query) return true;
+
+      const matchesDescription = expense.description
+        .toLowerCase()
+        .includes(query);
+      const matchesVendor = expense.vendor?.toLowerCase().includes(query);
+      const matchesCategory = expense.category?.toLowerCase().includes(query);
+      const matchesDepartment = expense.department
+        ?.toLowerCase()
+        .includes(query);
+      const matchesStatus = expense.status?.toLowerCase().includes(query);
+      const matchesAmount = expense.amount.toString().includes(query);
+
+      return (
+        matchesDescription ||
+        matchesVendor ||
+        matchesCategory ||
+        matchesDepartment ||
+        matchesStatus ||
+        matchesAmount
+      );
+    });
+  }, [expenses, statusFilter, departmentFilter, searchQuery]);
+
+  const sortedExpenses = [...filteredExpenses].sort((a, b) => {
+    let valA = a[sortField];
+    let valB = b[sortField];
+
+    if (valA === undefined) valA = "";
+    if (valB === undefined) valB = "";
+
+    if (valA < valB) return sortDirection === "asc" ? -1 : 1;
+    if (valA > valB) return sortDirection === "asc" ? 1 : -1;
+    return 0;
   });
 
   if (error) {
@@ -162,7 +273,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
     );
   }
 
-  if (filteredExpenses.length === 0) {
+  if (expenses.length === 0) {
     return (
       <div
         key="expense-list-empty"
@@ -170,6 +281,22 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
       >
         <p className="text-lg">No expenses yet</p>
         <p className="text-sm">Add your first expense to see it here</p>
+      </div>
+    );
+  }
+
+  if (filteredExpenses.length === 0) {
+    return (
+      <div className="text-center py-10 text-gray-600 dark:text-gray-300">
+        <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+          <Search className="w-7 h-7 text-gray-500 dark:text-gray-300" />
+        </div>
+        <h3 className="text-xl font-semibold text-foreground mb-2">
+          No results found for "{searchQuery}"
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          Try adjusting your search or filters to find the expense.
+        </p>
       </div>
     );
   }
@@ -208,16 +335,48 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
             </p>
           </div>
 
-          {/* Status and Department Filters */}
-          <div className="flex flex-col sm:flex-row gap-2 min-w-max">
-            <div className="flex flex-col gap-2">
+          {/* Filters and Search */}
+          <div className="flex flex-col sm:flex-row gap-4 items-center min-w-max">
+            {/* Search */}
+            <div className="relative w-full sm:w-auto">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none mt-6 sm:mt-0">
+                <Search className="h-4 w-4 text-gray-400 mt-6" />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Search
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search by vendor, category, amount, or description..."
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                    className="pl-9 pr-9 w-full sm:w-64 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  {searchInput && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchInput("")}
+                      className="absolute inset-y-0 right-2 flex items-center px-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                      aria-label="Clear search"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Status and Department Filters */}
+            <div className="flex flex-col gap-2 w-full sm:w-auto">
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Status
               </label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full sm:w-auto px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="all">All Statuses</option>
                 <option value="pending">Pending</option>
@@ -237,13 +396,11 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
                 className="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="all">All Departments</option>
-                <option value="Sales & Marketing">Sales & Marketing</option>
-                <option value="Operations">Operations</option>
-                <option value="Technology">Technology</option>
-                <option value="Finance">Finance</option>
-                <option value="Human Resources">Human Resources</option>
-                <option value="Administration">Administration</option>
-                <option value="Other">Other</option>
+                {EXPENSE_DEPARTMENTS.map((dept) => (
+                  <option key={dept} value={dept}>
+                    {dept}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -255,48 +412,13 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
         <table className="w-full">
           <thead className="bg-gray-50 dark:bg-gray-700">
             <tr key="table-header-row">
-              <th
-                key="header-description"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-              >
-                Description
-              </th>
-              <th
-                key="header-category"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-              >
-                Category
-              </th>
-              <th
-                key="header-department"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-              >
-                Department
-              </th>
-              <th
-                key="header-status"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-              >
-                Status
-              </th>
-              <th
-                key="header-date"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-              >
-                Date
-              </th>
-              <th
-                key="header-vendor"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-              >
-                Vendor
-              </th>
-              <th
-                key="header-amount"
-                className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-              >
-                Amount
-              </th>
+              <SortableHeader field="description" label="Description" />
+              <SortableHeader field="category" label="Category" />
+              <SortableHeader field="department" label="Department" />
+              <SortableHeader field="status" label="Status" />
+              <SortableHeader field="date" label="Date" />
+              <SortableHeader field="vendor" label="Vendor" />
+              <SortableHeader field="amount" label="Amount" align="right" />
               <th
                 key="header-approval-actions"
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
@@ -320,7 +442,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
             </tr>
           </thead>
           <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            {(filteredExpenses || []).map((expense, index) => {
+            {(sortedExpenses || []).map((expense, index) => {
               const showEditButton = canEditExpense();
               const showDeleteButton = canDeleteExpense();
               const showActions = showEditButton || showDeleteButton;
@@ -332,7 +454,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900 dark:text-white">
-                      {expense.description}
+                      {highlightText(expense.description, searchQuery)}
                     </div>
                   </td>
 
@@ -340,10 +462,9 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCategoryColor(
                         expense.category,
-                      )} bg-opacity-10`}
+                      )}`}
                     >
-                      {expense.category.charAt(0).toUpperCase() +
-                        expense.category.slice(1)}
+                      {highlightText(expense.category, searchQuery)}
                     </span>
                   </td>
 
@@ -368,11 +489,13 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
                   </td>
 
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {expense.vendor || "-"}
+                    {expense.vendor
+                      ? highlightText(expense.vendor, searchQuery)
+                      : "-"}
                   </td>
 
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-right text-gray-900 dark:text-white">
-                    {formatCurrency(expense.amount)}
+                    {formatAmount(expense.amount)}
                   </td>
 
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -425,7 +548,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
                         {showDeleteButton && (
                           <button
                             key={`delete-btn-${expense.id}`}
-                            onClick={() => handleDeleteExpense(expense.id)}
+                            onClick={() => setDeleteConfirmId(expense.id)}
                             className="text-red-600 hover:text-red-800 transition-colors px-2 py-1"
                             disabled={loading}
                           >
@@ -450,6 +573,18 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
           onClose={() => setViewingReceipt(null)}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={!!deleteConfirmId}
+        title="Delete Expense"
+        message="Are you sure you want to delete this expense? This action cannot be undone."
+        confirmLabel={loading ? "Deleting..." : "Delete"}
+        cancelLabel="Cancel"
+        variant="danger"
+        onConfirm={handleDeleteExpense}
+        onCancel={() => !loading && setDeleteConfirmId(null)}
+      />
     </div>
   );
 };
