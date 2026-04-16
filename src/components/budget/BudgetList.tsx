@@ -8,6 +8,7 @@ import { usePermissions } from "../../hooks/userPermissions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { formatCurrency } from "../../utils/formatCurrency";
 import BudgetForm from "./BudgetForm";
 import ConfirmDialog from "../ui/ConfirmDialog";
 import { Shield } from "lucide-react";
@@ -215,16 +216,6 @@ const BudgetList: React.FC<BudgetListProps> = ({
       Other: "📋",
     };
     return icons[category] || "📋";
-  };
-
-  const formatCurrency = (amount: number) => {
-    const currency = company?.currency || "DZD";
-    return new Intl.NumberFormat("fr-DZ", {
-      style: "currency",
-      currency,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
   };
 
   const formatDate = (dateString: string | undefined | null) => {

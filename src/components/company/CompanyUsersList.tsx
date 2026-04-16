@@ -508,11 +508,13 @@ const CompanyUsersList: React.FC<CompanyUsersListProps> = ({
               <span className="text-2xl">{searchQuery ? "🔍" : "👥"}</span>
             </div>
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
-              {searchQuery ? "No Matches Found" : "No Team Members Yet"}
+              {searchQuery
+                ? `No results for '${searchQuery}'`
+                : "No Team Members Yet"}
             </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
               {searchQuery
-                ? `No team members match "${searchQuery}". Try a different search.`
+                ? "Try a different search term or clear the query."
                 : "Start by adding managers to your company team"}
             </p>
             {isAdmin() && !searchQuery && (

@@ -108,6 +108,22 @@ const getUserInitials = (user: any): string => {
   return (first + last).toUpperCase() || "U";
 };
 
+// Helper: Deterministic avatar gradient by string
+const getAvatarGradient = (value: string) => {
+  const gradients = [
+    "from-sky-400 to-blue-600",
+    "from-emerald-400 to-teal-600",
+    "from-fuchsia-500 to-pink-600",
+    "from-amber-400 to-orange-500",
+    "from-violet-500 to-indigo-600",
+  ];
+  const hash = Array.from(value || "").reduce(
+    (sum, char) => sum + char.charCodeAt(0),
+    0,
+  );
+  return gradients[hash % gradients.length];
+};
+
 // Helper: Truncate details
 const truncateDetails = (details: any): string => {
   if (!details || Object.keys(details).length === 0) {
@@ -208,6 +224,9 @@ const AuditLogTable: React.FC<AuditLogTableProps> = ({
                 typeof log.userId === "string"
                   ? { email: log.userId, firstName: "User", lastName: "" }
                   : log.userId;
+              const avatarKey =
+                user?.email ||
+                `${user?.firstName || "U"}${user?.lastName || ""}`;
 
               return (
                 <tr
@@ -217,7 +236,7 @@ const AuditLogTable: React.FC<AuditLogTableProps> = ({
                     `log-${log.timestamp}-${log.action}-${log.entity}`
                   }
                   onClick={() => onRowClick?.(log)}
-                  className={`border-b border-gray-200 dark:border-gray-700 transition-all duration-150 ${
+                  className={`border-b border-gray-200 dark:border-gray-700 transition-all duration-150 odd:bg-white even:bg-slate-50 dark:odd:bg-gray-800 dark:even:bg-gray-700 ${
                     onRowClick
                       ? "hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer"
                       : ""
@@ -232,14 +251,21 @@ const AuditLogTable: React.FC<AuditLogTableProps> = ({
                   }}
                 >
                   {/* Timestamp */}
-                  <td className="p-4 text-sm font-medium text-gray-800 dark:text-gray-200 whitespace-nowrap">
+                  <td
+                    className="p-4 text-sm font-medium text-gray-800 dark:text-gray-200 whitespace-nowrap"
+                    title={new Date(log.timestamp).toLocaleString()}
+                  >
                     {formatTimestamp(log.timestamp)}
                   </td>
 
                   {/* User */}
                   <td className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-bold ring-2 ring-white dark:ring-gray-800 shadow-sm">
+                      <div
+                        className={`w-9 h-9 rounded-full bg-gradient-to-br ${getAvatarGradient(
+                          avatarKey,
+                        )} flex items-center justify-center text-white text-xs font-bold ring-2 ring-white dark:ring-gray-800 shadow-sm`}
+                      >
                         {user && "avatar" in user && user.avatar ? (
                           <img
                             src={user.avatar}

@@ -292,7 +292,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
           <Search className="w-7 h-7 text-gray-500 dark:text-gray-300" />
         </div>
         <h3 className="text-xl font-semibold text-foreground mb-2">
-          No expenses match "{searchQuery}"
+          No results for '{searchQuery}'
         </h3>
         <p className="text-sm text-muted-foreground">
           Try adjusting your search or filters to find the expense.
@@ -357,7 +357,10 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
                   {searchInput && (
                     <button
                       type="button"
-                      onClick={() => setSearchInput("")}
+                      onClick={() => {
+                        setSearchInput("");
+                        setSearchQuery("");
+                      }}
                       className="absolute inset-y-0 right-2 flex items-center px-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
                       aria-label="Clear search"
                     >

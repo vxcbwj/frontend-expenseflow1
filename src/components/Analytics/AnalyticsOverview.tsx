@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { OverviewData } from "../../services/analyticsAPI";
 import { useCompany } from "../../contexts/CompanyContext";
+import { formatCurrency } from "../../utils/formatCurrency";
 
 interface AnalyticsOverviewProps {
   data: OverviewData;
@@ -10,15 +11,6 @@ interface AnalyticsOverviewProps {
 
 const AnalyticsOverview: React.FC<AnalyticsOverviewProps> = ({ data }) => {
   const { company } = useCompany();
-  // Format currency function
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat("fr-DZ", {
-      style: "currency",
-      currency: company?.currency || "DZD",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
-  };
 
   // Get category color and icon
   const getCategoryConfig = (category: string) => {

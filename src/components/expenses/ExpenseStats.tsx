@@ -1,6 +1,7 @@
 import React from "react";
 import { type Expense } from "../../services/expenseAPI";
 import { useCompany } from "../../contexts/CompanyContext";
+import { formatCurrency } from "../../utils/formatCurrency";
 
 interface ExpenseStatsProps {
   expenses: Expense[];
@@ -24,25 +25,20 @@ const ExpenseStats: React.FC<ExpenseStatsProps> = ({ expenses }) => {
     .reduce((sum, expense) => sum + expense.amount, 0);
 
   // Calculate spending by category
-  const categorySpending = expenses.reduce((acc, expense) => {
-    acc[expense.category] = (acc[expense.category] || 0) + expense.amount;
-    return acc;
-  }, {} as Record<string, number>);
+  const categorySpending = expenses.reduce(
+    (acc, expense) => {
+      acc[expense.category] = (acc[expense.category] || 0) + expense.amount;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   // Find top spending category
   const topCategory = Object.entries(categorySpending).reduce(
     (max, [category, amount]) =>
       amount > max.amount ? { category, amount } : max,
-    { category: "", amount: 0 }
+    { category: "", amount: 0 },
   );
-
-  // Format currency
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("fr-DZ", {
-      style: "currency",
-      currency: company?.currency || "DZD",
-    }).format(amount);
-  };
 
   if (expenses.length === 0) {
     return (

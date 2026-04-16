@@ -351,9 +351,12 @@ const CompanyUsersPage: React.FC = () => {
             <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
               <span className="text-gray-500 dark:text-gray-400">🔍</span>
             </div>
-            {searchQuery && (
+            {searchInput && (
               <button
-                onClick={() => setSearchQuery("")}
+                onClick={() => {
+                  setSearchInput("");
+                  setSearchQuery("");
+                }}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
               >
                 ✕

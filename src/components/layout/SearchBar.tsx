@@ -29,6 +29,7 @@ interface SearchBarProps {
 
 const SearchBar: React.FC<SearchBarProps> = ({ isExpanded, onToggle }) => {
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -103,20 +104,29 @@ const SearchBar: React.FC<SearchBarProps> = ({ isExpanded, onToggle }) => {
     },
   ];
 
-  // Filter results based on query
+  // Debounce the search input for smoother filtering
   useEffect(() => {
-    if (query.trim() === "") {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(query.trim());
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  useEffect(() => {
+    if (debouncedQuery === "") {
       setResults([]);
       return;
     }
 
+    const lowerQuery = debouncedQuery.toLowerCase();
     const filtered = searchItems.filter(
       (item) =>
-        item.label.toLowerCase().includes(query.toLowerCase()) ||
-        item.description?.toLowerCase().includes(query.toLowerCase()),
+        item.label.toLowerCase().includes(lowerQuery) ||
+        item.description?.toLowerCase().includes(lowerQuery),
     );
     setResults(filtered.slice(0, 8)); // Limit to 8 results
-  }, [query]);
+  }, [debouncedQuery]);
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -265,14 +275,14 @@ const SearchBar: React.FC<SearchBarProps> = ({ isExpanded, onToggle }) => {
                   <SearchIcon className="w-8 h-8 text-gray-400" />
                 </div>
                 <p className="text-gray-500 dark:text-gray-400 font-medium">
-                  No results found for "
+                  No results for '
                   <span className="font-semibold text-gray-700 dark:text-gray-300">
                     {query}
                   </span>
-                  "
+                  '
                 </p>
                 <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
-                  Try searching for pages like "expenses" or "budgets"
+                  Try a different search term or clear the query.
                 </p>
               </div>
             ) : (
@@ -333,23 +343,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ isExpanded, onToggle }) => {
               <div className="flex items-center space-x-4">
                 <span>Ctrl+K Open</span>
                 <span>ESC Close</span>
-              </div>{" "}
-              ) : query.trim() !== "" ? (
-              <div className="p-8 text-center text-gray-600 dark:text-gray-300">
-                <SearchIcon className="mx-auto mb-4 w-12 h-12 opacity-50" />
-                <p className="text-lg font-semibold mb-2">
-                  No matches for "{query}"
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Try a different search term or clear the query.
-                </p>
               </div>
-              ) : (
-              <div className="p-8 text-center text-gray-600 dark:text-gray-300">
-                <p className="text-sm">
-                  Type to search pages, actions, or settings.
-                </p>
-              </div>{" "}
             </div>
           </div>
         </div>

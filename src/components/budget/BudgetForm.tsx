@@ -7,6 +7,7 @@ import {
 } from "../../services/budgetsAPI";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCompany } from "../../contexts/CompanyContext";
+import { formatCurrency } from "../../utils/formatCurrency";
 import { usePermissions } from "../../hooks/userPermissions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -170,15 +171,6 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
     } finally {
       setLoading(false);
     }
-  };
-
-  // Format currency
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("fr-DZ", {
-      style: "currency",
-      currency: company?.currency || "DZD",
-      minimumFractionDigits: 2,
-    }).format(amount);
   };
 
   // If user doesn't have permission to manage budgets

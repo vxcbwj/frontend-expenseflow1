@@ -228,7 +228,7 @@ const AuditLogsPage: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
-            <Shield className="w-8 h-8" />
+            <Shield className="w-8 h-8 text-blue-600" />
             Audit Logs
           </h1>
           <p className="text-muted-foreground mt-1">

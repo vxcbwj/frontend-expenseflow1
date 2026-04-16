@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MonthlyTrend } from "../../services/analyticsAPI";
 import { useCompany } from "../../contexts/CompanyContext";
+import { formatCurrency } from "../../utils/formatCurrency";
 
 interface SpendingTrendsProps {
   data: MonthlyTrend[];
@@ -10,16 +11,6 @@ interface SpendingTrendsProps {
 
 const SpendingTrends: React.FC<SpendingTrendsProps> = ({ data }) => {
   const { company } = useCompany();
-  // Format currency function
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat("fr-DZ", {
-      style: "currency",
-      currency: company?.currency || "DZD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
-
   // Format compact currency for tooltips
   const formatCompactCurrency = (amount: number): string => {
     return new Intl.NumberFormat("fr-DZ", {
@@ -188,7 +179,7 @@ const SpendingTrends: React.FC<SpendingTrendsProps> = ({ data }) => {
                         <span>
                           Avg:{" "}
                           {formatCurrency(
-                            month.count > 0 ? month.amount / month.count : 0
+                            month.count > 0 ? month.amount / month.count : 0,
                           )}
                         </span>
                         <span>•</span>
@@ -212,7 +203,7 @@ const SpendingTrends: React.FC<SpendingTrendsProps> = ({ data }) => {
                 <div className="text-2xl mb-2">🏆</div>
                 {(() => {
                   const highestMonth = [...data].sort(
-                    (a, b) => b.amount - a.amount
+                    (a, b) => b.amount - a.amount,
                   )[0];
                   return (
                     <>
@@ -243,7 +234,7 @@ const SpendingTrends: React.FC<SpendingTrendsProps> = ({ data }) => {
                 {(() => {
                   const total = data.reduce(
                     (sum, month) => sum + month.amount,
-                    0
+                    0,
                   );
                   const average = data.length > 0 ? total / data.length : 0;
                   return (
@@ -319,11 +310,11 @@ const SpendingTrends: React.FC<SpendingTrendsProps> = ({ data }) => {
                   const variance =
                     amounts.reduce(
                       (sum, amount) => sum + Math.pow(amount - average, 2),
-                      0
+                      0,
                     ) / amounts.length;
                   const consistency = Math.max(
                     0,
-                    100 - (Math.sqrt(variance) / average) * 100
+                    100 - (Math.sqrt(variance) / average) * 100,
                   );
 
                   return (
@@ -344,8 +335,8 @@ const SpendingTrends: React.FC<SpendingTrendsProps> = ({ data }) => {
                         {consistency > 80
                           ? "Very consistent"
                           : consistency > 60
-                          ? "Moderately consistent"
-                          : "Variable spending"}
+                            ? "Moderately consistent"
+                            : "Variable spending"}
                       </div>
                     </div>
                   );

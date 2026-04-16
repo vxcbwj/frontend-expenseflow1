@@ -4,6 +4,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { CategoryBreakdown as CategoryBreakdownType } from "../../services/analyticsAPI";
 import { useCompany } from "../../contexts/CompanyContext";
+import { formatCurrency } from "../../utils/formatCurrency";
 
 // Renamed the prop interface to avoid conflict
 interface CategoryBreakdownProps {
@@ -15,15 +16,6 @@ const CategoryBreakdownComponent: React.FC<CategoryBreakdownProps> = ({
   data,
 }) => {
   const { company } = useCompany();
-  // Format currency function
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat("fr-DZ", {
-      style: "currency",
-      currency: company?.currency || "DZD",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
-  };
 
   // Get category configuration
   const getCategoryConfig = (category: string) => {
@@ -336,7 +328,7 @@ const CategoryBreakdownComponent: React.FC<CategoryBreakdownProps> = ({
               {sortedData.length > 0 ? (
                 (() => {
                   const highestAvg = [...sortedData].sort(
-                    (a, b) => (b.average || 0) - (a.average || 0)
+                    (a, b) => (b.average || 0) - (a.average || 0),
                   )[0];
                   const config = getCategoryConfig(highestAvg.category);
                   return (
@@ -370,7 +362,7 @@ const CategoryBreakdownComponent: React.FC<CategoryBreakdownProps> = ({
               {sortedData.length > 0 ? (
                 (() => {
                   const mostFrequent = [...sortedData].sort(
-                    (a, b) => b.count - a.count
+                    (a, b) => b.count - a.count,
                   )[0];
                   const config = getCategoryConfig(mostFrequent.category);
                   return (

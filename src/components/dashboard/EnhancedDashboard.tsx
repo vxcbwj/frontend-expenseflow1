@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useCompany } from "../../contexts/CompanyContext";
 import { type Expense } from "../../services/expenseAPI";
+import { formatCurrency } from "../../utils/formatCurrency";
 import {
   TrendingUp,
   Calendar,
@@ -80,15 +81,6 @@ export const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
     lastMonthExpenses > 0
       ? ((thisMonthExpenses - lastMonthExpenses) / lastMonthExpenses) * 100
       : 0;
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("fr-DZ", {
-      style: "currency",
-      currency: company?.currency || "DZD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
 
   // Enhanced category icons and colors
   const getCategoryConfig = (category: string) => {
@@ -251,9 +243,12 @@ export const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
             </CardHeader>
             <CardContent className="space-y-4">
               {[...Array(5)].map((_, i) => (
-                <div key={`recent-skel-${i}`} className="flex justify-between border-b pb-2">
-                   <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                   <div className="h-4 w-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                <div
+                  key={`recent-skel-${i}`}
+                  className="flex justify-between border-b pb-2"
+                >
+                  <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  <div className="h-4 w-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
                 </div>
               ))}
             </CardContent>
