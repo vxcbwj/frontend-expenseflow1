@@ -216,17 +216,14 @@ const CompanyManagement: React.FC = () => {
               <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-2">
                 Currency
               </label>
-              <select
-                name="currency"
-                value={formData.currency || "DZD"}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600 transition-all"
-              >
-                <option value="DZD">DZD - د.ج (Algerian Dinar)</option>
-                <option value="USD">USD - $ (US Dollar)</option>
-                <option value="EUR">EUR - € (Euro)</option>
-                <option value="GBP">GBP - £ (British Pound)</option>
-              </select>
+              <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600">
+                <span className="text-base font-semibold text-gray-900 dark:text-white">
+                  DZD - د.ج
+                </span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  (Algerian Dinar)
+                </span>
+              </div>
             </div>
             <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
               <button
@@ -301,17 +298,9 @@ const CompanyManagement: React.FC = () => {
               </p>
               <div className="flex items-center gap-2">
                 <span className="text-lg font-semibold text-gray-900 dark:text-white">
-                  {company.currency}
+                  DZD
                 </span>
-                <span className="text-2xl">
-                  {company.currency === "DZD"
-                    ? "د.ج"
-                    : company.currency === "USD"
-                      ? "$"
-                      : company.currency === "EUR"
-                        ? "€"
-                        : "£"}
-                </span>
+                <span className="text-2xl">د.ج</span>
               </div>
             </div>
             <div>

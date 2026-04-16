@@ -5,6 +5,10 @@ import {
   type UpdateProfileData,
 } from "../../services/userAPI";
 import { useAuth } from "../../contexts/AuthContext";
+import {
+  isValidPhoneNumber,
+  PHONE_ERROR_MESSAGE,
+} from "../../utils/phoneValidator";
 
 const UserProfile: React.FC = () => {
   const { user: authUser, refreshProfile } = useAuth();
@@ -37,18 +41,9 @@ const UserProfile: React.FC = () => {
     }
   };
 
-  const isValidPhoneNumber = (value: string) => {
-    if (!value) return true;
-    const normalized = value.replace(/\s+/g, "");
-    if (/^\+213\d{9}$/.test(normalized)) return true;
-    return /^\+\d{4,15}$/.test(normalized);
-  };
-
   const handleSave = async () => {
     if (formData.phone && !isValidPhoneNumber(formData.phone)) {
-      setMessage(
-        "Please enter a valid phone number. Algerian numbers must start with +213 followed by 9 digits.",
-      );
+      setMessage(PHONE_ERROR_MESSAGE);
       return;
     }
 
@@ -311,33 +306,14 @@ const UserProfile: React.FC = () => {
               <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-2">
                 Default Currency
               </label>
-              {editMode ? (
-                <select
-                  name="preferences.currency"
-                  value={
-                    formData.preferences?.currency ?? user.preferences.currency
-                  }
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
-                >
-                  <option value="DZD">DZD - د.ج (Algerian Dinar)</option>
-                  <option value="USD">USD - $ (US Dollar)</option>
-                  <option value="EUR">EUR - € (Euro)</option>
-                  <option value="GBP">GBP - £ (British Pound)</option>
-                </select>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <p className="text-base font-semibold text-gray-900 dark:text-white">
-                    {user.preferences.currency || "DZD"}
-                  </p>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
-                    {user.preferences.currency === "DZD" ||
-                    !user.preferences.currency
-                      ? "Algerian Dinar"
-                      : ""}
-                  </span>
-                </div>
-              )}
+              <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600">
+                <p className="text-base font-semibold text-gray-900 dark:text-white">
+                  DZD - د.ج
+                </p>
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  (Algerian Dinar)
+                </span>
+              </div>
             </div>
           </div>
         </div>

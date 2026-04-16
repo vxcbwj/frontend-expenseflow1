@@ -2,6 +2,10 @@ import React, { useState } from "react";
 import { authAPI } from "../../services/api";
 import { useAuth } from "../../contexts/AuthContext";
 import { useCompany } from "../../contexts/CompanyContext";
+import {
+  isValidPhoneNumber,
+  PHONE_ERROR_MESSAGE,
+} from "../../utils/phoneValidator";
 import toast from "react-hot-toast";
 
 interface RegisterFormProps {
@@ -49,21 +53,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
     });
   };
 
-  const isValidPhoneNumber = (value: string) => {
-    if (!value) return true;
-    const normalized = value.replace(/\s+/g, "");
-    if (/^\+213\d{9}$/.test(normalized)) return true;
-    return /^\+\d{4,15}$/.test(normalized);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     if (formData.phone && !isValidPhoneNumber(formData.phone)) {
-      toast.error(
-        "Please enter a valid phone number. Algerian numbers must start with +213 followed by 9 digits.",
-      );
+      toast.error(PHONE_ERROR_MESSAGE);
       setLoading(false);
       return;
     }
