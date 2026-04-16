@@ -58,7 +58,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
       : "";
   const [searchInput, setSearchInput] = useState<string>(storedSearch);
   const [searchQuery, setSearchQuery] = useState<string>(storedSearch);
-  const searchDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [departmentFilter, setDepartmentFilter] = useState<string>("all");
@@ -292,7 +292,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
           <Search className="w-7 h-7 text-gray-500 dark:text-gray-300" />
         </div>
         <h3 className="text-xl font-semibold text-foreground mb-2">
-          No results found for "{searchQuery}"
+          No expenses match "{searchQuery}"
         </h3>
         <p className="text-sm text-muted-foreground">
           Try adjusting your search or filters to find the expense.

@@ -108,41 +108,83 @@ const UserProfile: React.FC = () => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
-          Your Profile
-        </h1>
-        <button
-          onClick={() => setEditMode(!editMode)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          {editMode ? "Cancel" : "Edit Profile"}
-        </button>
+    <div className="max-w-4xl mx-auto space-y-8 py-6">
+      {/* Page Header */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div className="flex items-start gap-4">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+              {user.firstName?.[0]}
+              {user.lastName?.[0]}
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                {user.firstName} {user.lastName}
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400 mt-1">
+                {user.email}
+              </p>
+              <div className="flex items-center gap-3 mt-3">
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                    user.role === "admin"
+                      ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                      : "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                  }`}
+                >
+                  {user.role === "admin" ? "Admin" : "Manager"}
+                </span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  Joined {new Date(user.createdAt).toLocaleDateString()}
+                </span>
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => setEditMode(!editMode)}
+            className={`px-6 py-2.5 rounded-lg font-medium transition-all duration-200 ${
+              editMode
+                ? "bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50"
+                : "bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg"
+            }`}
+          >
+            {editMode ? "✕ Cancel" : "✏️ Edit Profile"}
+          </button>
+        </div>
       </div>
 
       {message && (
         <div
-          className={`p-4 rounded-lg ${
+          className={`px-5 py-4 rounded-lg border transition-all ${
             message.includes("success")
-              ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300 border border-green-200 dark:border-green-800"
-              : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300 border border-red-200 dark:border-red-800"
+              ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800"
+              : "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800"
           }`}
         >
-          {message}
+          <div className="flex items-start gap-3">
+            <span className="text-lg mt-0.5">
+              {message.includes("success") ? "✅" : "⚠️"}
+            </span>
+            <p className="text-sm font-medium">{message}</p>
+          </div>
         </div>
       )}
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-8 border border-gray-200 dark:border-gray-700">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Personal Information */}
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">
-              Personal Information
-            </h2>
+          <div className="space-y-6">
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-xl">
+                👤
+              </div>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                Personal Information
+              </h2>
+            </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+              <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-2">
                 First Name
               </label>
               {editMode ? (
@@ -151,17 +193,17 @@ const UserProfile: React.FC = () => {
                   name="firstName"
                   value={formData.firstName ?? user.firstName}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
                 />
               ) : (
-                <p className="text-lg text-gray-800 dark:text-white">
+                <p className="text-lg font-semibold text-gray-900 dark:text-white">
                   {user.firstName}
                 </p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+              <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-2">
                 Last Name
               </label>
               {editMode ? (
@@ -170,81 +212,79 @@ const UserProfile: React.FC = () => {
                   name="lastName"
                   value={formData.lastName ?? user.lastName}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
                 />
               ) : (
-                <p className="text-lg text-gray-800 dark:text-white">
+                <p className="text-lg font-semibold text-gray-900 dark:text-white">
                   {user.lastName}
                 </p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                Email
+              <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-2">
+                Email Address
               </label>
-              <p className="text-lg text-gray-600 dark:text-gray-400">
+              <p className="text-base text-gray-700 dark:text-gray-300 font-mono bg-gray-100 dark:bg-gray-700 p-3 rounded-lg">
                 {user.email}
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                Phone
+              <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-2">
+                Phone Number
               </label>
               {editMode ? (
                 <input
                   type="tel"
                   name="phone"
-                  placeholder="+213 XX XX XX XX XX"
+                  placeholder="+213 553 97 67 88"
                   value={formData.phone ?? user.phone ?? ""}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
                 />
               ) : (
-                <p className="text-lg text-gray-800 dark:text-white">
-                  {user.phone || "Not provided"}
+                <p className="text-base text-gray-700 dark:text-gray-300">
+                  {user.phone ? (
+                    <span className="font-mono">{user.phone}</span>
+                  ) : (
+                    <span className="text-gray-500 italic">Not provided</span>
+                  )}
                 </p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+              <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-2">
                 Role
               </label>
-              <p className="text-lg">
+              <div className="flex items-center gap-2">
                 <span
-                  className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  className={`px-3 py-1 rounded-full text-xs font-bold ${
                     user.role === "admin"
                       ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
                       : "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
                   }`}
                 >
-                  {user.role === "admin" ? "Admin" : "Manager"}
+                  {user.role === "admin" ? "Administrator" : "Manager"}
                 </span>
-              </p>
-            </div>
-
-            {user.companyId && (
-              <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                  Company ID
-                </label>
-                <p className="text-sm text-gray-600 dark:text-gray-400 font-mono">
-                  {user.companyId}
-                </p>
               </div>
-            )}
+            </div>
           </div>
 
           {/* Preferences */}
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">
-              Preferences
-            </h2>
+          <div className="space-y-6">
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-xl">
+                ⚙️
+              </div>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                Preferences
+              </h2>
+            </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+              <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-2">
                 Theme
               </label>
               {editMode ? (
@@ -252,22 +292,24 @@ const UserProfile: React.FC = () => {
                   name="preferences.theme"
                   value={formData.preferences?.theme ?? user.preferences.theme}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
                 >
-                  <option value="auto">Auto</option>
+                  <option value="auto">Auto (System)</option>
                   <option value="light">Light</option>
                   <option value="dark">Dark</option>
                 </select>
               ) : (
-                <p className="text-lg capitalize text-gray-800 dark:text-white">
-                  {user.preferences.theme}
+                <p className="text-base font-semibold capitalize text-gray-900 dark:text-white">
+                  {user.preferences.theme === "auto"
+                    ? "Auto (System)"
+                    : user.preferences.theme}
                 </p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                Currency
+              <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-2">
+                Default Currency
               </label>
               {editMode ? (
                 <select
@@ -276,36 +318,43 @@ const UserProfile: React.FC = () => {
                     formData.preferences?.currency ?? user.preferences.currency
                   }
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
                 >
-                  <option value="DZD">DZD (Algerian Dinar)</option>
-                  <option value="USD">USD ($)</option>
-                  <option value="EUR">EUR (€)</option>
-                  <option value="GBP">GBP (£)</option>
-                  <option value="DZD">DZD (د.ج)</option>
+                  <option value="DZD">DZD - د.ج (Algerian Dinar)</option>
+                  <option value="USD">USD - $ (US Dollar)</option>
+                  <option value="EUR">EUR - € (Euro)</option>
+                  <option value="GBP">GBP - £ (British Pound)</option>
                 </select>
               ) : (
-                <p className="text-lg text-gray-800 dark:text-white">
-                  {user.preferences.currency}
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="text-base font-semibold text-gray-900 dark:text-white">
+                    {user.preferences.currency || "DZD"}
+                  </p>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    {user.preferences.currency === "DZD" ||
+                    !user.preferences.currency
+                      ? "Algerian Dinar"
+                      : ""}
+                  </span>
+                </div>
               )}
             </div>
           </div>
         </div>
 
         {editMode && (
-          <div className="mt-6 flex justify-end space-x-3">
+          <div className="mt-8 flex justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
             <button
               onClick={() => setEditMode(false)}
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors"
+              className="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium transition-all"
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-all shadow-md hover:shadow-lg"
             >
-              Save Changes
+              ✅ Save Changes
             </button>
           </div>
         )}

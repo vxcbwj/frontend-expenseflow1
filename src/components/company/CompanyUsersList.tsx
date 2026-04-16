@@ -39,8 +39,9 @@ const CompanyUsersList: React.FC<CompanyUsersListProps> = ({
   const [error, setError] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [editFormData, setEditFormData] = useState({
-    role: "manager", // FIXED: Only manager role in 2-role system
+    role: "manager",
     department: "",
     isActive: true,
   });
@@ -50,6 +51,17 @@ const CompanyUsersList: React.FC<CompanyUsersListProps> = ({
 
   // Check permissions - only admins can manage users
   const userCanManageUsers = isAdmin();
+
+  // Filter users based on search query
+  const filteredUsers = React.useMemo(() => {
+    if (!searchQuery.trim()) return users;
+    const query = searchQuery.toLowerCase().trim();
+    return users.filter((user) =>
+      [user.email, user.firstName, user.lastName, user.globalRole]
+        .filter(Boolean)
+        .some((field) => field.toLowerCase().includes(query)),
+    );
+  }, [users, searchQuery]);
 
   const fetchCompanyUsers = async () => {
     if (!companyIdToUse) {
@@ -291,9 +303,59 @@ const CompanyUsersList: React.FC<CompanyUsersListProps> = ({
         </Card>
       )}
 
+      {/* Search Bar */}
+      <div className="mb-6">
+        <div className="relative">
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search team members by name, email, or role..."
+            className="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          />
+          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">
+            🔍
+          </div>
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 font-semibold"
+              aria-label="Clear search"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+        {searchQuery && (
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+            {filteredUsers.length} result{filteredUsers.length !== 1 ? "s" : ""}{" "}
+            found
+          </p>
+        )}
+      </div>
+
+      {/* Error Display */}
+      {error && (
+        <Card className="border-red-200 bg-red-50 dark:bg-red-900/20">
+          <CardContent className="pt-6">
+            <div className="text-red-700 dark:text-red-300 text-center">
+              <p>{error}</p>
+              <Button
+                onClick={fetchCompanyUsers}
+                variant="outline"
+                className="mt-2 border-red-300 text-red-700 hover:bg-red-100"
+              >
+                Try Again
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Users Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {users.map((user) => (
+        {filteredUsers.map((user) => (
           <Card key={user.id} className="hover:shadow-lg transition-shadow">
             <CardContent className="pt-6">
               {/* User Header */}
@@ -439,19 +501,21 @@ const CompanyUsersList: React.FC<CompanyUsersListProps> = ({
       </div>
 
       {/* Empty State */}
-      {users.length === 0 && !loading && (
+      {filteredUsers.length === 0 && !loading && (
         <Card>
           <CardContent className="py-12 text-center">
             <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl">👥</span>
+              <span className="text-2xl">{searchQuery ? "🔍" : "👥"}</span>
             </div>
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
-              No Team Members Yet
+              {searchQuery ? "No Matches Found" : "No Team Members Yet"}
             </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Start by adding managers to your company team
+              {searchQuery
+                ? `No team members match "${searchQuery}". Try a different search.`
+                : "Start by adding managers to your company team"}
             </p>
-            {isAdmin() && (
+            {isAdmin() && !searchQuery && (
               <Button
                 className="bg-blue-600 hover:bg-blue-700"
                 onClick={() => setIsAddModalOpen(true)}

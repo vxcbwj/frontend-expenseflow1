@@ -24,7 +24,7 @@ const AuditLogFiltersComponent: React.FC<AuditLogFiltersProps> = ({
   const [userEmail, setUserEmail] = useState<string>("");
   const [limit, setLimit] = useState<number>(100);
   const [isExpanded, setIsExpanded] = useState(false);
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Get today's date for max attribute
   const today = new Date().toISOString().split("T")[0];
@@ -61,12 +61,20 @@ const AuditLogFiltersComponent: React.FC<AuditLogFiltersProps> = ({
 
     debounceTimerRef.current = setTimeout(() => {
       handleFilterChange();
-    }, 500);
+    }, 300);
 
     return () => {
       if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
     };
-  }, [startDate, endDate, action, entity, userEmail, limit, handleFilterChange]);
+  }, [
+    startDate,
+    endDate,
+    action,
+    entity,
+    userEmail,
+    limit,
+    handleFilterChange,
+  ]);
 
   // Reset all filters
   const handleReset = () => {

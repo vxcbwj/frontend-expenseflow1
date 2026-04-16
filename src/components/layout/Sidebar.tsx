@@ -209,13 +209,23 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
           {/* Current Company Info */}
           {company && (
             <div className="px-4 mt-6">
-              <div className="p-3 flex flex-col gap-2 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-600">
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+              <div className="p-4 flex flex-col gap-3 bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                <p className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-1">
                   Current Company
                 </p>
-                <p className="text-sm font-medium text-gray-800 dark:text-white truncate">
+                <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
                   {company.name}
                 </p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-600 dark:text-gray-400">
+                    Currency:
+                  </span>
+                  <span className="text-sm font-bold text-indigo-700 dark:text-indigo-300">
+                    {company.currency
+                      ? `${company.currency} - ${company.currency === "DZD" ? "دج" : company.currency}`
+                      : "DZD - دج"}
+                  </span>
+                </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                   ID:{" "}
                   {company.id?.substring(0, 8) || company._id?.substring(0, 8)}

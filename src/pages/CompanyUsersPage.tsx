@@ -28,12 +28,19 @@ const CompanyUsersPage: React.FC = () => {
   const { company } = useCompany();
   const { isAdmin } = usePermissions();
 
+  const storedSearch =
+    typeof window !== "undefined"
+      ? sessionStorage.getItem("companyUserSearch") || ""
+      : "";
+
   const [users, setUsers] = useState<CompanyUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showInvitationList, setShowInvitationList] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchInput, setSearchInput] = useState(storedSearch);
+  const [searchQuery, setSearchQuery] = useState(storedSearch);
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const hasFetchedRef = useRef(false);
 
@@ -45,16 +52,35 @@ const CompanyUsersPage: React.FC = () => {
     return "Manager";
   }, [user]);
 
-  // Filter users based on search
-  const filteredUsers = users.filter((user) => {
-    const searchLower = searchQuery.toLowerCase();
-    return (
-      user.email.toLowerCase().includes(searchLower) ||
-      user.firstName.toLowerCase().includes(searchLower) ||
-      user.lastName.toLowerCase().includes(searchLower) ||
-      user.companyRole.toLowerCase().includes(searchLower)
+  const filteredUsers = React.useMemo(() => {
+    const searchLower = searchQuery.toLowerCase().trim();
+    if (!searchLower) return users;
+
+    return users.filter((user) =>
+      [user.email, user.firstName, user.lastName, user.companyRole]
+        .filter(Boolean)
+        .some((field) => field.toLowerCase().includes(searchLower)),
     );
-  });
+  }, [users, searchQuery]);
+
+  useEffect(() => {
+    if (searchDebounceRef.current) {
+      clearTimeout(searchDebounceRef.current);
+    }
+
+    searchDebounceRef.current = setTimeout(() => {
+      setSearchQuery(searchInput);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("companyUserSearch", searchInput);
+      }
+    }, 300);
+
+    return () => {
+      if (searchDebounceRef.current) {
+        clearTimeout(searchDebounceRef.current);
+      }
+    };
+  }, [searchInput]);
 
   // Memoized fetchUsers with cleanup
   const fetchUsers = useCallback(async () => {
@@ -318,8 +344,8 @@ const CompanyUsersPage: React.FC = () => {
             <input
               type="text"
               placeholder="Search team members by name, email, or role..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               className="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             />
             <div className="absolute left-4 top-1/2 transform -translate-y-1/2">

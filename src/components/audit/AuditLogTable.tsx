@@ -25,25 +25,28 @@ interface AuditLogTableProps {
 
 // Helper: Get color classes for action
 const getActionColor = (action: string): string => {
-  switch (action) {
-    case "CREATE":
-      return "text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950";
-    case "UPDATE":
-      return "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950";
-    case "DELETE":
-      return "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950";
-    case "APPROVE":
-      return "text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950";
-    case "REJECT":
-      return "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950";
-    case "INVITE":
-      return "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950";
-    case "LOGIN":
-    case "LOGOUT":
-      return "text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-950";
-    default:
-      return "text-foreground bg-muted";
-  }
+  const colorMap: { [key: string]: string } = {
+    CREATE:
+      "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700",
+    UPDATE:
+      "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-300 dark:border-blue-700",
+    DELETE:
+      "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 border border-red-300 dark:border-red-700",
+    APPROVE:
+      "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700",
+    REJECT:
+      "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 border border-red-300 dark:border-red-700",
+    INVITE:
+      "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-700",
+    LOGIN:
+      "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300 border border-gray-300 dark:border-gray-700",
+    LOGOUT:
+      "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300 border border-gray-300 dark:border-gray-700",
+  };
+  return (
+    colorMap[action] ||
+    "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300 border border-gray-300 dark:border-gray-700"
+  );
 };
 
 // Helper: Get icon for action
@@ -149,35 +152,35 @@ const AuditLogTable: React.FC<AuditLogTableProps> = ({
 }) => {
   // Desktop Table View
   const DesktopTable = () => (
-    <div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
+    <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
       <table className="w-full border-collapse">
-        <thead className="bg-muted/50 border-b border-border">
+        <thead className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 border-b-2 border-gray-300 dark:border-gray-600">
           <tr>
-            <th className="p-3 text-left text-sm font-semibold text-foreground">
-              <div className="flex items-center gap-1">
-                <Clock className="w-4 h-4" />
+            <th className="p-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider">
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                 Timestamp
               </div>
             </th>
-            <th className="p-3 text-left text-sm font-semibold text-foreground">
-              <div className="flex items-center gap-1">
-                <User className="w-4 h-4" />
+            <th className="p-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider">
+              <div className="flex items-center gap-2">
+                <User className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                 User
               </div>
             </th>
-            <th className="p-3 text-left text-sm font-semibold text-foreground">
-              <div className="flex items-center gap-1">
-                <Activity className="w-4 h-4" />
+            <th className="p-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider">
+              <div className="flex items-center gap-2">
+                <Activity className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                 Action
               </div>
             </th>
-            <th className="p-3 text-left text-sm font-semibold text-foreground">
-              <div className="flex items-center gap-1">
-                <Shield className="w-4 h-4" />
+            <th className="p-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider">
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                 Entity
               </div>
             </th>
-            <th className="p-3 text-left text-sm font-semibold text-foreground">
+            <th className="p-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider">
               Details
             </th>
           </tr>
@@ -208,11 +211,15 @@ const AuditLogTable: React.FC<AuditLogTableProps> = ({
 
               return (
                 <tr
-                  key={log.id || (log as any)._id || `log-${log.timestamp}-${log.action}-${log.entity}`}
+                  key={
+                    log.id ||
+                    (log as any)._id ||
+                    `log-${log.timestamp}-${log.action}-${log.entity}`
+                  }
                   onClick={() => onRowClick?.(log)}
-                  className={`border-b border-border transition-colors ${
+                  className={`border-b border-gray-200 dark:border-gray-700 transition-all duration-150 ${
                     onRowClick
-                      ? "hover:bg-muted/50 cursor-pointer"
+                      ? "hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer"
                       : ""
                   }`}
                   role={onRowClick ? "button" : undefined}
@@ -225,14 +232,14 @@ const AuditLogTable: React.FC<AuditLogTableProps> = ({
                   }}
                 >
                   {/* Timestamp */}
-                  <td className="p-3 text-sm text-foreground">
+                  <td className="p-4 text-sm font-medium text-gray-800 dark:text-gray-200 whitespace-nowrap">
                     {formatTimestamp(log.timestamp)}
                   </td>
 
                   {/* User */}
-                  <td className="p-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-semibold">
+                  <td className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-bold ring-2 ring-white dark:ring-gray-800 shadow-sm">
                         {user && "avatar" in user && user.avatar ? (
                           <img
                             src={user.avatar}
@@ -243,11 +250,11 @@ const AuditLogTable: React.FC<AuditLogTableProps> = ({
                           getUserInitials(user)
                         )}
                       </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white">
                           {user?.firstName} {user?.lastName}
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                           {user?.email}
                         </p>
                       </div>
@@ -255,12 +262,12 @@ const AuditLogTable: React.FC<AuditLogTableProps> = ({
                   </td>
 
                   {/* Action */}
-                  <td className="p-3">
+                  <td className="p-4">
                     <div className="flex items-center gap-2">
-                      <ActionIcon className="w-4 h-4" />
+                      <ActionIcon className="w-4 h-4 flex-shrink-0" />
                       <span
-                        className={`px-2 py-1 rounded-full text-xs font-semibold ${getActionColor(
-                          log.action
+                        className={`px-3 py-1 rounded-lg text-xs font-semibold ${getActionColor(
+                          log.action,
                         )}`}
                       >
                         {log.action}
@@ -269,19 +276,21 @@ const AuditLogTable: React.FC<AuditLogTableProps> = ({
                   </td>
 
                   {/* Entity */}
-                  <td className="p-3 text-sm text-foreground">
-                    <div className="flex items-center gap-1">
-                      <span className="font-medium">{log.entity}</span>
+                  <td className="p-4 text-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-gray-900 dark:text-white">
+                        {log.entity}
+                      </span>
                       {log.entityId && (
-                        <span className="text-xs text-muted-foreground">
-                          ({log.entityId.substring(0, 8)}...)
+                        <span className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">
+                          {log.entityId.substring(0, 6)}
                         </span>
                       )}
                     </div>
                   </td>
 
                   {/* Details */}
-                  <td className="p-3 text-sm text-muted-foreground truncate">
+                  <td className="p-4 text-sm text-gray-600 dark:text-gray-300 truncate max-w-xs">
                     {truncateDetails(log.details)}
                   </td>
                 </tr>
@@ -299,7 +308,10 @@ const AuditLogTable: React.FC<AuditLogTableProps> = ({
       {loading ? (
         <>
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="bg-card border border-border rounded-lg p-4 animate-pulse">
+            <div
+              key={i}
+              className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 animate-pulse shadow-sm"
+            >
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-full bg-muted"></div>
                 <div className="flex-1 space-y-2">
@@ -324,23 +336,27 @@ const AuditLogTable: React.FC<AuditLogTableProps> = ({
 
           return (
             <div
-              key={log.id || (log as any)._id || `log-${log.timestamp}-${log.action}-${log.entity}`}
+              key={
+                log.id ||
+                (log as any)._id ||
+                `log-${log.timestamp}-${log.action}-${log.entity}`
+              }
               onClick={() => onRowClick?.(log)}
-              className="bg-card border border-border rounded-lg p-4 hover:bg-muted/50 transition-colors cursor-pointer"
+              className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-muted/50 transition-colors shadow-sm hover:shadow-md cursor-pointer"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3 flex-1">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
-  {user && "avatar" in user && user.avatar ? (
-    <img
-      src={user.avatar}
-      alt={user.email}
-      className="w-10 h-10 rounded-full object-cover"
-    />
-  ) : (
-    getUserInitials(user)
-  )}
-</div>
+                    {user && "avatar" in user && user.avatar ? (
+                      <img
+                        src={user.avatar}
+                        alt={user.email}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      getUserInitials(user)
+                    )}
+                  </div>
                   <div className="flex-1">
                     <p className="text-sm font-medium text-foreground">
                       {user?.firstName} {user?.lastName}
@@ -351,7 +367,7 @@ const AuditLogTable: React.FC<AuditLogTableProps> = ({
                     <div className="flex items-center gap-2 flex-wrap">
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-semibold ${getActionColor(
-                          log.action
+                          log.action,
                         )}`}
                       >
                         {log.action}

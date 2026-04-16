@@ -11,9 +11,9 @@ export const formatCurrency = (
   try {
     if (currencyCode.toUpperCase() === "DZD") {
       const formatted = new Intl.NumberFormat(locale, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }).format(amount);
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(Math.round(amount));
       return `${formatted} دج`;
     }
 
@@ -26,7 +26,7 @@ export const formatCurrency = (
   } catch (err) {
     // Fallback if the browser doesn't cleanly support the currency token
     if (currencyCode.toUpperCase() === "DZD") {
-      return `${amount.toFixed(2)} دج`;
+      return `${Math.round(amount)} دج`;
     }
     return `${amount.toFixed(2)} ${currencyCode}`;
   }

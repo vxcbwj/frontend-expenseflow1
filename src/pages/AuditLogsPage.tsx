@@ -223,7 +223,7 @@ const AuditLogsPage: React.FC = () => {
   const endItem = Math.min(filters.page! * filters.limit!, totalLogs);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fadeIn">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>

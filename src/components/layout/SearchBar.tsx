@@ -333,7 +333,23 @@ const SearchBar: React.FC<SearchBarProps> = ({ isExpanded, onToggle }) => {
               <div className="flex items-center space-x-4">
                 <span>Ctrl+K Open</span>
                 <span>ESC Close</span>
+              </div>{" "}
+              ) : query.trim() !== "" ? (
+              <div className="p-8 text-center text-gray-600 dark:text-gray-300">
+                <SearchIcon className="mx-auto mb-4 w-12 h-12 opacity-50" />
+                <p className="text-lg font-semibold mb-2">
+                  No matches for "{query}"
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Try a different search term or clear the query.
+                </p>
               </div>
+              ) : (
+              <div className="p-8 text-center text-gray-600 dark:text-gray-300">
+                <p className="text-sm">
+                  Type to search pages, actions, or settings.
+                </p>
+              </div>{" "}
             </div>
           </div>
         </div>
