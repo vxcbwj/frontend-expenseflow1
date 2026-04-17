@@ -3,11 +3,13 @@
  * Defaults to Algerian format: +213 followed by 9 digits
  */
 
-export const ALGERIAN_PHONE_PATTERN = /^\+213\d{9}$/;
+export const ALGERIAN_MOBILE_LOCAL = /^0[5-7]\d{8}$/;
+export const ALGERIAN_LANDLINE_LOCAL = /^0[2-4]\d{7}$/;
+export const ALGERIAN_PHONE_PATTERN = /^\+213(?:[5-7]\d{8}|[2-4]\d{7})$/;
 export const INTERNATIONAL_PHONE_PATTERN = /^\+\d{4,15}$/;
-export const PHONE_PLACEHOLDER = "+213 553 97 67 88";
+export const PHONE_PLACEHOLDER = "+213 661 00 00 00";
 export const PHONE_ERROR_MESSAGE =
-  "Please enter a valid phone number. Algerian numbers must start with +213 followed by 9 digits.";
+  "Please enter a valid Algerian phone number. Mobile numbers use +2135 / +2136 / +2137 and landlines use +2132x–+2134x.";
 
 /**
  * Validates a phone number string
@@ -34,7 +36,15 @@ export const isValidPhoneNumber = (value: string): boolean => {
  */
 const formatAlgerianDigits = (digits: string): string => {
   const national = digits.slice(3);
-  return `+213 ${national.slice(0, 3)} ${national.slice(3, 5)} ${national.slice(5, 7)} ${national.slice(7)}`;
+  if (national.length === 9) {
+    return `+213 ${national.slice(0, 3)} ${national.slice(3, 5)} ${national.slice(5, 7)} ${national.slice(7)}`;
+  }
+
+  if (national.length === 8) {
+    return `+213 ${national.slice(0, 2)} ${national.slice(2, 4)} ${national.slice(4, 6)} ${national.slice(6)}`;
+  }
+
+  return `+213 ${national}`;
 };
 
 export const formatPhoneNumber = (value: string): string => {
@@ -42,18 +52,24 @@ export const formatPhoneNumber = (value: string): string => {
 
   const digits = value.replace(/\D/g, "");
 
-  // Normalize local Algerian numbers like 0553976788 -> +213553976788
-  if (digits.length === 10 && digits.startsWith("0")) {
+  // Normalize local Algerian numbers: mobile (10 digits) and landline (9 digits)
+  if (digits.startsWith("0") && (digits.length === 10 || digits.length === 9)) {
     return formatAlgerianDigits(`213${digits.slice(1)}`);
   }
 
-  // Normalize international Algerian numbers like 00213553976788 -> +213 553 97 67 88
-  if (digits.startsWith("00213") && digits.length === 14) {
+  // Normalize international Algerian numbers like 00213661000000 -> +213 661 00 00 00
+  if (
+    digits.startsWith("00213") &&
+    (digits.length === 13 || digits.length === 14)
+  ) {
     return formatAlgerianDigits(digits.slice(2));
   }
 
   // For Algerian numbers starting with 213
-  if (digits.startsWith("213") && digits.length === 12) {
+  if (
+    digits.startsWith("213") &&
+    (digits.length === 11 || digits.length === 12)
+  ) {
     return formatAlgerianDigits(digits);
   }
 
@@ -68,5 +84,5 @@ export const formatPhoneNumber = (value: string): string => {
 export const getPhoneInputProps = () => ({
   type: "tel",
   placeholder: PHONE_PLACEHOLDER,
-  pattern: "\\+213\\d{9}",
+  pattern: "\\+213\\d{8,9}",
 });
