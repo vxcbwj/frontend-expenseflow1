@@ -230,7 +230,7 @@ const CompanyManagement: React.FC = () => {
               </label>
               <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600">
                 <span className="text-base font-semibold text-gray-900 dark:text-white">
-                  DZD - د.ج
+                  {DEFAULT_CURRENCY_DISPLAY}
                 </span>
                 <span className="text-sm text-gray-500 dark:text-gray-400">
                   (Algerian Dinar)

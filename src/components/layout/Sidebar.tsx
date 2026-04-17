@@ -4,6 +4,10 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { usePermissions } from "../../hooks/userPermissions";
 import { useCompany } from "../../contexts/CompanyContext";
 import {
+  DEFAULT_CURRENCY_CODE,
+  DEFAULT_CURRENCY_SYMBOL,
+} from "../../utils/constants";
+import {
   UsersIcon,
   DashboardIcon,
   BudgetIcon,
@@ -222,8 +226,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
                   </span>
                   <span className="text-sm font-bold text-indigo-700 dark:text-indigo-300">
                     {company.currency
-                      ? `${company.currency} - ${company.currency === "DZD" ? "دج" : company.currency}`
-                      : "DZD - دج"}
+                      ? `${company.currency} - ${company.currency === DEFAULT_CURRENCY_CODE ? DEFAULT_CURRENCY_SYMBOL : company.currency}`
+                      : `${DEFAULT_CURRENCY_CODE} - ${DEFAULT_CURRENCY_SYMBOL}`}
                   </span>
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400 truncate">

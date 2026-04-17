@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MonthlyTrend } from "../../services/analyticsAPI";
 import { useCompany } from "../../contexts/CompanyContext";
+import { DEFAULT_CURRENCY_CODE } from "../../utils/constants";
 import { formatCurrency } from "../../utils/formatCurrency";
 
 interface SpendingTrendsProps {
@@ -15,7 +16,7 @@ const SpendingTrends: React.FC<SpendingTrendsProps> = ({ data }) => {
   const formatCompactCurrency = (amount: number): string => {
     return new Intl.NumberFormat("fr-DZ", {
       style: "currency",
-      currency: company?.currency || "DZD",
+      currency: company?.currency || DEFAULT_CURRENCY_CODE,
       notation: "compact",
       maximumFractionDigits: 1,
     }).format(amount);

@@ -21,6 +21,7 @@ import {
   EXPENSE_DEPARTMENTS,
   CATEGORY_COLORS,
   DEPARTMENT_COLORS,
+  DEFAULT_CURRENCY_CODE,
 } from "../../utils/constants";
 import ExpenseStatusBadge from "./ExpenseStatusBadge";
 import { formatCurrency } from "../../utils/formatCurrency";
@@ -159,7 +160,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
   };
 
   const formatAmount = (amount: number) => {
-    return formatCurrency(amount, _company?.currency || "DZD");
+    return formatCurrency(amount, _company?.currency || DEFAULT_CURRENCY_CODE);
   };
 
   // Category colors
