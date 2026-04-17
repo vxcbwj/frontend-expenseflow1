@@ -32,14 +32,29 @@ export const isValidPhoneNumber = (value: string): boolean => {
  * @param value - Raw phone number string
  * @returns Formatted phone number
  */
+const formatAlgerianDigits = (digits: string): string => {
+  const national = digits.slice(3);
+  return `+213 ${national.slice(0, 3)} ${national.slice(3, 5)} ${national.slice(5, 7)} ${national.slice(7)}`;
+};
+
 export const formatPhoneNumber = (value: string): string => {
   if (!value) return "";
 
   const digits = value.replace(/\D/g, "");
 
+  // Normalize local Algerian numbers like 0553976788 -> +213553976788
+  if (digits.length === 10 && digits.startsWith("0")) {
+    return formatAlgerianDigits(`213${digits.slice(1)}`);
+  }
+
+  // Normalize international Algerian numbers like 00213553976788 -> +213 553 97 67 88
+  if (digits.startsWith("00213") && digits.length === 14) {
+    return formatAlgerianDigits(digits.slice(2));
+  }
+
   // For Algerian numbers starting with 213
   if (digits.startsWith("213") && digits.length === 12) {
-    return `+${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6, 9)} ${digits.slice(9)}`;
+    return formatAlgerianDigits(digits);
   }
 
   // Fallback: return as-is
