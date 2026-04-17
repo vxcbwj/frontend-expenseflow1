@@ -1,5 +1,6 @@
 // frontend/src/services/userAPI.ts - SIMPLIFIED 2-ROLE SYSTEM
 import api from "./api";
+import { DEFAULT_CURRENCY_CODE } from "../utils/constants";
 
 // Updated to match backend 2-role User model
 export interface UserProfile {
@@ -72,7 +73,7 @@ export const normalizeBackendUser = (backendUser: any): UserProfile => {
 
     preferences: backendUser.preferences || {
       theme: "auto",
-      currency: "DZD",
+      currency: DEFAULT_CURRENCY_CODE,
       language: "en",
     },
     createdAt: backendUser.createdAt,

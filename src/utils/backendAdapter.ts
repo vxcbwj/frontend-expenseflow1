@@ -1,5 +1,6 @@
 // frontend/src/utils/backendAdapter.ts - SIMPLIFIED 2-ROLE SYSTEM
 import { UserProfile } from "../services/userAPI";
+import { DEFAULT_CURRENCY_CODE } from "./constants";
 
 export const adaptBackendUserForFrontend = (backendUser: any): UserProfile => {
   return {
@@ -28,7 +29,7 @@ export const adaptBackendUserForFrontend = (backendUser: any): UserProfile => {
 
     preferences: backendUser.preferences || {
       theme: "auto",
-      currency: "DZD",
+      currency: DEFAULT_CURRENCY_CODE,
       language: "en",
     },
     createdAt: backendUser.createdAt,

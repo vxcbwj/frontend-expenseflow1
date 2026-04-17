@@ -2,6 +2,10 @@
 import React, { useState } from "react";
 import { useCompany } from "../../contexts/CompanyContext";
 import { usePermissions } from "../../hooks/userPermissions";
+import {
+  DEFAULT_CURRENCY_CODE,
+  DEFAULT_CURRENCY_DISPLAY,
+} from "../../utils/constants";
 
 const CompanyManagement: React.FC = () => {
   const { company, loading, createCompany, updateCompany } = useCompany();
@@ -11,7 +15,7 @@ const CompanyManagement: React.FC = () => {
   const [formData, setFormData] = useState({
     name: "",
     industry: "",
-    currency: "DZD",
+    currency: DEFAULT_CURRENCY_CODE,
   });
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState("");
@@ -66,7 +70,11 @@ const CompanyManagement: React.FC = () => {
       setTimeout(() => {
         setShowForm(false);
         setEditingCompany(null);
-        setFormData({ name: "", industry: "", currency: "DZD" });
+        setFormData({
+          name: "",
+          industry: "",
+          currency: DEFAULT_CURRENCY_CODE,
+        });
         setSuccessMessage("");
       }, 1500);
     } catch (err: any) {
@@ -102,7 +110,7 @@ const CompanyManagement: React.FC = () => {
   const handleCancel = () => {
     setShowForm(false);
     setEditingCompany(null);
-    setFormData({ name: "", industry: "", currency: "DZD" });
+    setFormData({ name: "", industry: "", currency: DEFAULT_CURRENCY_CODE });
     setError("");
     setSuccessMessage("");
   };
@@ -145,7 +153,11 @@ const CompanyManagement: React.FC = () => {
               <button
                 onClick={() => {
                   setEditingCompany(null);
-                  setFormData({ name: "", industry: "", currency: "DZD" });
+                  setFormData({
+                    name: "",
+                    industry: "",
+                    currency: DEFAULT_CURRENCY_CODE,
+                  });
                   setShowForm(!showForm);
                 }}
                 className={`px-5 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 ${

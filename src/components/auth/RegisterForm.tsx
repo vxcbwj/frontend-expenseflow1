@@ -5,6 +5,7 @@ import { useCompany } from "../../contexts/CompanyContext";
 import {
   isValidPhoneNumber,
   PHONE_ERROR_MESSAGE,
+  PHONE_PLACEHOLDER,
 } from "../../utils/phoneValidator";
 import toast from "react-hot-toast";
 
@@ -243,7 +244,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
             value={formData.phone}
             onChange={handleChange}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all"
-            placeholder="+213 553 97 67 88"
+            placeholder={PHONE_PLACEHOLDER}
           />
         </div>
 

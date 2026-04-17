@@ -8,7 +8,9 @@ import { useAuth } from "../../contexts/AuthContext";
 import {
   isValidPhoneNumber,
   PHONE_ERROR_MESSAGE,
+  PHONE_PLACEHOLDER,
 } from "../../utils/phoneValidator";
+import { DEFAULT_CURRENCY_DISPLAY } from "../../utils/constants";
 
 const UserProfile: React.FC = () => {
   const { user: authUser, refreshProfile } = useAuth();
@@ -233,7 +235,7 @@ const UserProfile: React.FC = () => {
                 <input
                   type="tel"
                   name="phone"
-                  placeholder="+213 553 97 67 88"
+                  placeholder={PHONE_PLACEHOLDER}
                   value={formData.phone ?? user.phone ?? ""}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
@@ -308,7 +310,7 @@ const UserProfile: React.FC = () => {
               </label>
               <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600">
                 <p className="text-base font-semibold text-gray-900 dark:text-white">
-                  DZD - د.ج
+                  {DEFAULT_CURRENCY_DISPLAY}
                 </p>
                 <span className="text-sm text-gray-500 dark:text-gray-400">
                   (Algerian Dinar)
