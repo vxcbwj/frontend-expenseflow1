@@ -1,5 +1,6 @@
 // services/auditLogAPI.ts
 import api from "./api";
+import logger from "../utils/logger";
 
 /**
  * Represents a single audit log entry
@@ -9,13 +10,15 @@ export interface AuditLog {
   action: string;
   entity: string;
   entityId: string | null;
-  userId: {
-    _id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    avatar?: string;
-  } | string;
+  userId:
+    | {
+        _id: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+        avatar?: string;
+      }
+    | string;
   companyId: string;
   details: any;
   ipAddress?: string;
@@ -69,7 +72,7 @@ export const auditLogAPI = {
    * @returns Promise with paginated audit logs
    */
   getAuditLogs: async (
-    filters?: AuditLogFilters
+    filters?: AuditLogFilters,
   ): Promise<AuditLogResponse> => {
     try {
       const params = new URLSearchParams();
@@ -87,14 +90,14 @@ export const auditLogAPI = {
       if (filters?.userId) params.append("userId", filters.userId);
 
       const queryString = params.toString();
-      console.log(`📋 Fetching audit logs with filters:`, filters);
+      logger.log(`Fetching audit logs with filters:`, filters);
 
       const response = await api.get(`/audit-logs?${queryString}`);
 
-      console.log(`✅ Audit logs fetched:`, response.data);
+      logger.log(`Audit logs fetched:`, response.data);
       return response.data;
     } catch (error) {
-      console.error("❌ Error fetching audit logs:", error);
+      logger.error("Error fetching audit logs:", error);
       return {
         success: false,
         logs: [],
@@ -116,27 +119,24 @@ export const auditLogAPI = {
   getAuditLogsByEntity: async (
     entity: string,
     entityId: string,
-    limit: number = 50
+    limit: number = 50,
   ): Promise<AuditLogResponse> => {
     try {
-      console.log(
-        `📋 Fetching audit logs for entity:`,
+      logger.log(
+        `Fetching audit logs for entity:`,
         entity,
         `with ID:`,
-        entityId
+        entityId,
       );
 
       const response = await api.get(
-        `/audit-logs/entity/${entity}/${entityId}?limit=${limit}`
+        `/audit-logs/entity/${entity}/${entityId}?limit=${limit}`,
       );
 
-      console.log(`✅ Entity audit logs fetched:`, response.data);
+      logger.log(`Entity audit logs fetched:`, response.data);
       return response.data;
     } catch (error) {
-      console.error(
-        `❌ Error fetching audit logs for entity ${entity}:`,
-        error
-      );
+      logger.error(`Error fetching audit logs for entity ${entity}:`, error);
       return {
         success: false,
         logs: [],
@@ -156,17 +156,19 @@ export const auditLogAPI = {
    */
   getAuditLogsByUser: async (
     userId: string,
-    limit: number = 50
+    limit: number = 50,
   ): Promise<AuditLogResponse> => {
     try {
-      console.log(`👤 Fetching audit logs for user:`, userId);
+      logger.log(`Fetching audit logs for user:`, userId);
 
-      const response = await api.get(`/audit-logs/user/${userId}?limit=${limit}`);
+      const response = await api.get(
+        `/audit-logs/user/${userId}?limit=${limit}`,
+      );
 
-      console.log(`✅ User audit logs fetched:`, response.data);
+      logger.log(`User audit logs fetched:`, response.data);
       return response.data;
     } catch (error) {
-      console.error(`❌ Error fetching audit logs for user ${userId}:`, error);
+      logger.error(`Error fetching audit logs for user ${userId}:`, error);
       return {
         success: false,
         logs: [],
@@ -185,14 +187,14 @@ export const auditLogAPI = {
    */
   getRecentLogs: async (limit: number = 20): Promise<AuditLogResponse> => {
     try {
-      console.log(`⏱️  Fetching recent audit logs with limit:`, limit);
+      logger.log(`Fetching recent audit logs with limit:`, limit);
 
       const response = await api.get(`/audit-logs/recent?limit=${limit}`);
 
-      console.log(`✅ Recent audit logs fetched:`, response.data);
+      logger.log(`Recent audit logs fetched:`, response.data);
       return response.data;
     } catch (error) {
-      console.error("❌ Error fetching recent audit logs:", error);
+      logger.error("Error fetching recent audit logs:", error);
       return {
         success: false,
         logs: [],
@@ -211,14 +213,14 @@ export const auditLogAPI = {
    */
   getAuditStats: async (days: number = 30): Promise<AuditLogStats> => {
     try {
-      console.log(`📊 Fetching audit statistics for last ${days} days`);
+      logger.log(`Fetching audit statistics for last ${days} days`);
 
       const response = await api.get(`/audit-logs/stats?days=${days}`);
 
-      console.log(`✅ Audit statistics fetched:`, response.data);
+      logger.log(`Audit statistics fetched:`, response.data);
       return response.data;
     } catch (error) {
-      console.error("❌ Error fetching audit statistics:", error);
+      logger.error("Error fetching audit statistics:", error);
       return {
         success: false,
         stats: {
@@ -240,14 +242,14 @@ export const auditLogAPI = {
     actions: string[];
   }> => {
     try {
-      console.log(`📝 Fetching available audit actions`);
+      logger.log(`Fetching available audit actions`);
 
       const response = await api.get(`/audit-logs/actions`);
 
-      console.log(`✅ Available actions fetched:`, response.data);
+      logger.log(`Available actions fetched:`, response.data);
       return response.data;
     } catch (error) {
-      console.error("❌ Error fetching available actions:", error);
+      logger.error("Error fetching available actions:", error);
       return {
         success: false,
         actions: [],
@@ -264,14 +266,14 @@ export const auditLogAPI = {
     entities: string[];
   }> => {
     try {
-      console.log(`📚 Fetching available audit entities`);
+      logger.log(`Fetching available audit entities`);
 
       const response = await api.get(`/audit-logs/entities`);
 
-      console.log(`✅ Available entities fetched:`, response.data);
+      logger.log(`Available entities fetched:`, response.data);
       return response.data;
     } catch (error) {
-      console.error("❌ Error fetching available entities:", error);
+      logger.error("Error fetching available entities:", error);
       return {
         success: false,
         entities: [],

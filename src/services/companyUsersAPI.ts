@@ -1,5 +1,6 @@
 // services/companyUsersAPI.ts - UPGRADED VERSION
 import api from "./api";
+import logger from "../utils/logger";
 
 export interface CompanyUser {
   id: string;
@@ -44,12 +45,12 @@ export const companyUsersAPI = {
   // Get all users for a company
   getCompanyUsers: async (companyId: string): Promise<CompanyUsersResponse> => {
     try {
-      console.log(`📊 Fetching users for company: ${companyId}`);
+      logger.log(`Fetching users for company: ${companyId}`);
       const response = await api.get(`/companies/${companyId}/users`);
       const data = response.data;
 
       if (data.success) {
-        console.log(`✅ Found ${data.users?.length || 0} users for company`);
+        logger.log(`Found ${data.users?.length || 0} users for company`);
         return {
           success: true,
           message: data.message || "Users retrieved successfully",
@@ -61,7 +62,7 @@ export const companyUsersAPI = {
 
       throw new Error(data.error || "Failed to fetch company users");
     } catch (error: any) {
-      console.error("❌ Failed to fetch company users:", error);
+      logger.error("Failed to fetch company users:", error);
       return {
         success: false,
         message:
