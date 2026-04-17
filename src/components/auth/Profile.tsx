@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { userAPI, type UserProfile } from "../../services/userAPI";
 import { useAuth } from "../../contexts/AuthContext";
+import { formatPhoneNumber } from "../../utils/phoneValidator";
 
 const Profile: React.FC = () => {
   const { user: authUser } = useAuth();
@@ -84,7 +85,7 @@ const Profile: React.FC = () => {
             Phone:
           </label>
           <p className="text-gray-800 dark:text-white">
-            {user.phone || "Not provided"}
+            {user.phone ? formatPhoneNumber(user.phone) : "Not provided"}
           </p>
         </div>
 

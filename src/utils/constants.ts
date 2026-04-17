@@ -14,8 +14,6 @@ export const DEFAULT_CURRENCY_DISPLAY = "DZD - د.ج";
  */
 export const DEFAULT_COUNTRY_CODE = "+213";
 export const DEFAULT_COUNTRY_NAME = "Algeria";
-export const DEFAULT_PHONE_PLACEHOLDER = "+213 553 97 67 88";
-export const DEFAULT_PHONE_PATTERN = /^\+213\d{9}$/;
 
 export const EXPENSE_CATEGORIES = [
   "Office Supplies",

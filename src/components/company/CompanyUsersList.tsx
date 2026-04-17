@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import AddUserModal from "./AddUserModal";
+import { formatPhoneNumber } from "../../utils/phoneValidator";
 
 interface CompanyUsersListProps {
   users?: CompanyUser[];
@@ -406,7 +407,7 @@ const CompanyUsersList: React.FC<CompanyUsersListProps> = ({
                 {user.phone && (
                   <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
                     <span>📞</span>
-                    <span>{user.phone}</span>
+                    <span>{formatPhoneNumber(user.phone)}</span>
                   </div>
                 )}
 

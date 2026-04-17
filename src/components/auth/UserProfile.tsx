@@ -6,9 +6,10 @@ import {
 } from "../../services/userAPI";
 import { useAuth } from "../../contexts/AuthContext";
 import {
+  getPhoneInputProps,
   isValidPhoneNumber,
   PHONE_ERROR_MESSAGE,
-  PHONE_PLACEHOLDER,
+  formatPhoneNumber,
 } from "../../utils/phoneValidator";
 import { DEFAULT_CURRENCY_DISPLAY } from "../../utils/constants";
 
@@ -233,9 +234,8 @@ const UserProfile: React.FC = () => {
               </label>
               {editMode ? (
                 <input
-                  type="tel"
+                  {...getPhoneInputProps()}
                   name="phone"
-                  placeholder={PHONE_PLACEHOLDER}
                   value={formData.phone ?? user.phone ?? ""}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
@@ -243,7 +243,9 @@ const UserProfile: React.FC = () => {
               ) : (
                 <p className="text-base text-gray-700 dark:text-gray-300">
                   {user.phone ? (
-                    <span className="font-mono">{user.phone}</span>
+                    <span className="font-mono">
+                      {formatPhoneNumber(user.phone)}
+                    </span>
                   ) : (
                     <span className="text-gray-500 italic">Not provided</span>
                   )}
