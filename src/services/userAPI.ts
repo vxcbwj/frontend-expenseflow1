@@ -68,7 +68,7 @@ export const normalizeBackendUser = (backendUser: any): UserProfile => {
     ).toLowerCase(),
 
     // Company assignment
-    companyId: backendUser.companyId,
+    companyId: backendUser.companyId?._id || backendUser.companyId,
     joinedCompanyAt: backendUser.joinedCompanyAt,
 
     preferences: backendUser.preferences || {

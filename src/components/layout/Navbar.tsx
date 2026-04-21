@@ -280,7 +280,11 @@ const Navbar: React.FC<NavbarProps> = ({
                     </div>
                     {user.companyId && (
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                        Company ID: {user.companyId.substring(0, 8)}...
+                        Company ID:{" "}
+                        {(user.companyId._id || user.companyId)
+                          .toString()
+                          .substring(0, 8)}
+                        ...
                       </p>
                     )}
                   </div>
